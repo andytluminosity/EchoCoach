@@ -1,8 +1,8 @@
 """
-URL configuration for myapp project.
+URL configuration for echocoach project.
 
 The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.1/topics/http/urls/
+    https://docs.djangoproject.com/en/5.2/topics/http/urls/
 Examples:
 Function views
     1. Add an import:  from my_app import views
@@ -17,7 +17,7 @@ Including another URLconf
 from django.urls import include, path
 from rest_framework import routers
 
-from echocoach import views
+from echocoach.myapp import views
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -27,5 +27,9 @@ router.register(r'groups', views.GroupViewSet)
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
     path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
+
+    # test view - go to http://127.0.0.1:8000/test/
+
+    path('test/', views.index, name="index")
 ]
