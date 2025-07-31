@@ -67,13 +67,16 @@ class NeuralNetwork(nn.Module):
                       stride=1,
                       padding=1),
             nn.ReLU(),
+            nn.BatchNorm2d(32),
             nn.Conv2d(in_channels=32, # another conv layer. these layers get the 'features' of the classes
                       out_channels=64,
                       kernel_size=3,
                       stride=1,
                       padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2)
+            nn.BatchNorm2d(64),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Dropout(0.25),
         )
         self.conv_block_2 = nn.Sequential(
             nn.Conv2d(in_channels=64,
@@ -82,13 +85,16 @@ class NeuralNetwork(nn.Module):
                       stride=1,
                       padding=1),
             nn.ReLU(),
+            nn.BatchNorm2d(128),
             nn.Conv2d(in_channels=128,
                       out_channels=128,
                       kernel_size=3,
                       stride=1,
                       padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2)
+            nn.BatchNorm2d(128),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Dropout(0.25)
         )
         self.conv_block_3 = nn.Sequential(
             nn.Conv2d(in_channels=128,
@@ -97,18 +103,26 @@ class NeuralNetwork(nn.Module):
                       stride=1,
                       padding=1),
             nn.ReLU(),
+            nn.BatchNorm2d(256),
             nn.Conv2d(in_channels=256,
                       out_channels=256,
                       kernel_size=3,
                       stride=1,
                       padding=1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2)
+            nn.BatchNorm2d(256),
+            nn.MaxPool2d(kernel_size=2),
+            nn.Dropout(0.25)
         )
         self.classifer = nn.Sequential( # classifier is the final linear layer to convert tensor into output
             nn.Flatten(),
             nn.Linear(in_features=256*6*6,
-                      out_features=7),
+                      out_features=256),
+            nn.ReLU(),
+            nn.BatchNorm1d(256),
+            nn.Dropout(0.5),
+            nn.Linear(in_features=256,
+                      out_features=7)
         )
     def forward(self, x):
         x = self.conv_block_1(x)
@@ -126,7 +140,7 @@ print(model)
 # now we make a loss function and optimizer to optimize the model!
 
 loss_fn = nn.CrossEntropyLoss() # CrossEntropyLoss is a loss fn, which is a fn that gauges the error b/w predicted output and target output
-optimizer = torch.optim.SGD(model.parameters(), lr=0.1) # SGD, stochastic gradient descent, is an optimizer, an algorith which attempts to decrease loss
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0001) # SGD, stochastic gradient descent, is an optimizer, an algorith which attempts to decrease loss
 # lr is the learning rate, the most important hyper parameter (parameter we can set)
 
 # we can now begin to train the model
