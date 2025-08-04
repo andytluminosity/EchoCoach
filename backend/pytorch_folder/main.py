@@ -13,9 +13,11 @@ test_data = datasets.FER2013(
     root="./pytorch_folder", split="test", transform=ToTensor()
 )
 
+batch_size = 64
+
 # dataloaders convert datasets into iterables, with each element being a batch of 64 data pieces
-train_dataloader = DataLoader(training_data, batch_size=64)
-test_dataloader = DataLoader(test_data, batch_size=64)
+train_dataloader = DataLoader(training_data, batch_size=batch_size, shuffle=True)
+test_dataloader = DataLoader(test_data, batch_size=batch_size)
 for X, y in test_dataloader:
     print(f"Shape of X [N, C, H, W]: {X.shape}")
     print(f"Shape of y: {y.shape} {y.dtype}")
@@ -60,7 +62,13 @@ class NeuralNetwork(nn.Module):
         self.linear_relu_stack = nn.Sequential( #sequential pipes output from one function to another
             nn.Linear(48 * 48, 512), # applies linear transformation to tensors
             nn.ReLU(), # applies rectified linear unit function (basically y = max(0, x))
-            nn.Linear(512, 512),
+            nn.Linear(512, 1024),
+            nn.ReLU(), # ReLU is an example of a non-linear activation function!
+            nn.Linear(1024, 1024),
+            nn.ReLU(),
+            nn.Linear(1024, 1024),
+            nn.ReLU(),
+            nn.Linear(1024, 512),
             nn.ReLU(),
             nn.Linear(512, 7)
         )
@@ -75,7 +83,8 @@ print(model)
 # now we make a loss function and optimizer to optimize the model!
 
 loss_fn = nn.CrossEntropyLoss() # CrossEntropyLoss is a loss fn, which is a fn that gauges the error b/w predicted output and target output
-optimizer = torch.optim.SGD(model.parameters(), lr=1e-2) # Optimizer, with learn rate of 1e-3
+optimizer = torch.optim.SGD(model.parameters(), lr=0.1) # SGD, stochastic gradient descent, is an optimizer, an algorith which attempts to decrease loss
+# lr is the learning rate, the most important hyper parameter (parameter we can set)
 
 # we can now begin to train the model
 
@@ -91,9 +100,9 @@ def train(dataloader, model, loss_fn, optimizer):
 
         # backpropagation - a gradient computation method to reduce difference b/w predicted and actual outputs
 
+        optimizer.zero_grad() # we set gradients back to zero every batch, so they don't accumulate
         loss.backward()
         optimizer.step() # performs a single optimization step
-        optimizer.zero_grad() # we set gradients back to zero every batch, so they don't accumulate
 
         if batch % 100 == 0:
             loss, current = loss.item(), (batch + 1) * len(X)
@@ -122,7 +131,7 @@ def test(dataloader, model, loss_fn):
 
 # now its time to actually train and test the model!
 
-epochs = 5 # an epoch is an iteration of the training cycle
+epochs = 64 # an epoch is an iteration of the training cycle
 for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
     train(train_dataloader, model, loss_fn, optimizer)

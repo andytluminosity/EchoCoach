@@ -1,0 +1,29 @@
+<div class="home">
+    <div class="header">
+        <h1>EchoCoach</h1>
+        <p>Your personal voice and speech coach</p>
+    </div>
+    <div class="start-button">
+        <button onclick="() => {}">
+            <span class="button-description">Start the magic</span>
+        </button>
+    </div>
+    <div class="body">
+        <div class="camera">
+            <h2 style="text-align: center">Camera</h2>
+        </div>
+        <div class="transcript">
+            <h2>Transcript</h2>
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
+                eiusmod tempor incididunt ut labore et dolore magna aliqua.
+            </p>
+        </div>
+    </div>
+    <div>
+        <h1>List of Users</h1>
+        @for (user of users; track user.username) {
+        <li>{{ user.username }}</li>
+        }
+    </div>
+</div>
