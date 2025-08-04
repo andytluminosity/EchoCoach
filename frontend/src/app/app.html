@@ -1,5 +1,15 @@
 <main class="main">
+    <div class="header">
+        <div class="title">
+            <a class="main-title" [routerLink]="['/']"><h1>EchoCoach</h1></a>
+            <p>Your personal voice and speech coach</p>
+        </div>
+        <div class="auth">
+            <button [routerLink]="['register']">Register</button>
+            <button>Login</button>
+        </div>
+    </div>
     <div class="content">
-        <app-home></app-home>
+        <router-outlet></router-outlet>
     </div>
 </main>

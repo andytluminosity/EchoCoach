@@ -1,0 +1,11 @@
+<div class="register">
+    <form class="form" #f="ngForm" (ngSubmit)="addUser(f)">
+        <label for="username">Username:</label>
+        <input type="text" name="username" id="username" required ngModel />
+        <label for="email">Email:</label>
+        <input type="email" name="email" id="email" required ngModel />
+        <label for="password">Password:</label>
+        <input type="password" name="password" id="password" required ngModel />
+        <input type="submit" class="submit" />
+    </form>
+</div>

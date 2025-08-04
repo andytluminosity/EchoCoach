@@ -1,0 +1,24 @@
+.register {
+    display: flex;
+    padding-top: 50px;
+    align-items: center;
+    justify-content: center;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+}
+
+label {
+    margin-top: 10px;
+}
+
+input {
+    margin-top: 10px;
+}
+
+.submit {
+    margin-top: 30px;
+}
