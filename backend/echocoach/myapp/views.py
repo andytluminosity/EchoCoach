@@ -7,6 +7,7 @@ from django.shortcuts import render
 # Viewsets are basiclaly 'classes' of views. AKA a group of views with common behvaiour.
 
 from django.contrib.auth.models import Group, User
+from django.contrib.auth import authenticate, login
 from rest_framework import permissions, viewsets
 
 from echocoach.myapp.serializers import GroupSerializer, UserSerializer
@@ -36,4 +37,13 @@ from django.http import HttpResponse
 
 def index(request):
     return HttpResponse("Hello, world. You're at the test index.")
+
+# def login(request):
+#     username = request.POST["username"]
+#     password = request.POST["password"]
+#     user = authenticate(request, username=username, password=password)
+#     if user is not None:
+#         login(request, user)
+#     else:
+#         # redirect user
 

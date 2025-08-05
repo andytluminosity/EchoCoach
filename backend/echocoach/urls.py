@@ -33,5 +33,6 @@ urlpatterns = [
 
     # test view - go to http://127.0.0.1:8000/test/
 
-    path('test/', views.index, name="index")
+    path('test/', views.index, name="index"),
+    path("accounts/", include("django.contrib.auth.urls"))
 ]

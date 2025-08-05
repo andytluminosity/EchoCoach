@@ -21,4 +21,8 @@ export class Api {
     addUser(user: User): Observable<User> {
         return this.http.post<User>(this.baseurl + '/users/', user);
     }
+
+    login(user: User): Observable<User> {
+        return this.http.post<User>(this.baseurl + '/accounts/login/', user);
+    }
 }
