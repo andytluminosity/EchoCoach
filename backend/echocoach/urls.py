@@ -17,12 +17,12 @@ Including another URLconf
 from django.urls import include, path
 from django.contrib import admin
 from rest_framework import routers
+from rest_framework.authtoken.views import ObtainAuthToken
 
 from echocoach.myapp import views
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
-router.register(r'groups', views.GroupViewSet)
 
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
@@ -34,5 +34,8 @@ urlpatterns = [
     # test view - go to http://127.0.0.1:8000/test/
 
     path('test/', views.index, name="index"),
-    path("accounts/", include("django.contrib.auth.urls"))
+    path('register/', views.register, name="Register"),
+    path('login/', views.login, name="Login"),
+    path('user/', views.getUserData, name="User")
+
 ]

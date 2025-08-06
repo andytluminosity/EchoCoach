@@ -12,4 +12,18 @@ import { Home } from './home/home';
 })
 export class App {
     protected title = 'EchoCoach';
+
+    userData = 'hi';
+
+    constructor(private api: Api) {
+        this.getUserData();
+    }
+
+    getUserData = () => {
+        return 'hi';
+        this.api.getUserData().subscribe({
+            next: (v) => (this.userData = 'hi ' + v.results),
+            error: (e) => console.log(e),
+        });
+    };
 }

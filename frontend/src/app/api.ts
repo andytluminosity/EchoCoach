@@ -18,11 +18,17 @@ export class Api {
         });
     }
 
-    addUser(user: User): Observable<User> {
-        return this.http.post<User>(this.baseurl + '/users/', user);
+    register(user: User): Observable<User> {
+        return this.http.post<User>(this.baseurl + '/register/', user);
     }
 
     login(user: User): Observable<User> {
-        return this.http.post<User>(this.baseurl + '/accounts/login/', user);
+        return this.http.post<User>(this.baseurl + '/login/', user);
+    }
+
+    getUserData(): Observable<any> {
+        return this.http.get(this.baseurl + '/user/', {
+            headers: this.httpHeaders,
+        });
     }
 }

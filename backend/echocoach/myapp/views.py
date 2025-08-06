@@ -6,11 +6,16 @@ from django.shortcuts import render
 
 # Viewsets are basiclaly 'classes' of views. AKA a group of views with common behvaiour.
 
+from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.contrib.auth.models import Group, User
 from django.contrib.auth import authenticate, login
-from rest_framework import permissions, viewsets
+from rest_framework import permissions, viewsets, authentication, status
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.authtoken.models import Token
+from django.shortcuts import get_object_or_404
 
-from echocoach.myapp.serializers import GroupSerializer, UserSerializer
+from echocoach.myapp.serializers import UserSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -19,17 +24,7 @@ class UserViewSet(viewsets.ModelViewSet):
     """
     queryset = User.objects.all().order_by('-date_joined')
     serializer_class = UserSerializer
-    # permission_classes = [permissions.IsAuthenticated]
-
-
-class GroupViewSet(viewsets.ModelViewSet):
-    """
-    API endpoint that allows groups to be viewed or edited.
-    """
-    queryset = Group.objects.all().order_by('name')
-    serializer_class = GroupSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
+    permission_classes = (IsAuthenticated,)
 
 # Test view - individual view, not viewset!
 
@@ -38,12 +33,34 @@ from django.http import HttpResponse
 def index(request):
     return HttpResponse("Hello, world. You're at the test index.")
 
-# def login(request):
-#     username = request.POST["username"]
-#     password = request.POST["password"]
-#     user = authenticate(request, username=username, password=password)
-#     if user is not None:
-#         login(request, user)
-#     else:
-#         # redirect user
+@api_view(['POST'])
+def register(request):
+    serializer = UserSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        user = User.objects.get(username=request.data['username'])
+        user.set_password(request.data['password'])
+        user.save()
+        token = Token.objects.create(user=user)
+        return Response({'token': token.key, 'user': serializer.data})
+    return Response(serializer.errors, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def login(request):
+    user = get_object_or_404(User, username=request.data['username'])
+    if not user.check_password(request.data['password']):
+        return Response("missing user", status=status.HTTP_404_NOT_FOUND)
+    token, created = Token.objects.get_or_create(user=user)
+    serializer = UserSerializer(user)
+    res = Response({'token': token.key, 'user': serializer.data})
+
+    res.set_cookie('accessToken', token.key)
+    
+    return res
+
+@api_view(['GET'])
+def getUserData(request):
+    permission_classes = (IsAuthenticated,)
+    serializer = UserSerializer(request.user)
+    return Response(serializer.data)
 

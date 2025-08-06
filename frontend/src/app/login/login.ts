@@ -11,9 +11,22 @@ import { FormsModule } from '@angular/forms';
     providers: [Api],
 })
 export class Login {
-    constructor(private api: Api) {}
+    constructor(private api: Api) {
+        this.getAllUsers();
+    }
 
     login = (f: NgForm) => {
-        this.api.login(f.value).subscribe();
+        this.api.login(f.value).subscribe((response) => {
+            console.log(response);
+        });
+    };
+
+    users = [{ username: 'Test' }];
+
+    getAllUsers = () => {
+        this.api.getAllUsers().subscribe({
+            next: (v) => (this.users = v.results),
+            error: (e) => console.log(e),
+        });
     };
 }

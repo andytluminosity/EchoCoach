@@ -14,7 +14,7 @@ import { FormsModule } from '@angular/forms';
 export class Register {
     constructor(private api: Api) {}
 
-    addUser = (f: NgForm) => {
-        this.api.addUser(f.value).subscribe();
+    register = (f: NgForm) => {
+        this.api.register(f.value).subscribe();
     };
 }
