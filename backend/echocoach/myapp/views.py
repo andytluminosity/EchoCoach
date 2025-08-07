@@ -52,9 +52,7 @@ def login(request):
         return Response("missing user", status=status.HTTP_404_NOT_FOUND)
     token, created = Token.objects.get_or_create(user=user)
     serializer = UserSerializer(user)
-    res = Response({'token': token.key, 'user': serializer.data})
-
-    res.set_cookie('accessToken', token.key)
+    res = Response(token.key)
     
     return res
 

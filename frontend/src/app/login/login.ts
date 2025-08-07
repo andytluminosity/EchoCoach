@@ -17,7 +17,8 @@ export class Login {
 
     login = (f: NgForm) => {
         this.api.login(f.value).subscribe((response) => {
-            console.log(response);
+            const userDataString = JSON.stringify(response);
+            localStorage.setItem('token', response);
         });
     };
 

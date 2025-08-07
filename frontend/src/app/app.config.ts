@@ -7,7 +7,13 @@ import {
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideHttpClient, withXsrfConfiguration } from '@angular/common/http';
+import {
+    provideHttpClient,
+    withInterceptors,
+    withInterceptorsFromDi,
+    withXsrfConfiguration,
+} from '@angular/common/http';
+import { authInterceptor } from './authInterceptor';
 
 export const appConfig: ApplicationConfig = {
     providers: [
@@ -18,7 +24,8 @@ export const appConfig: ApplicationConfig = {
             withXsrfConfiguration({
                 cookieName: 'csrftoken',
                 headerName: 'X-CSRFToken',
-            })
+            }),
+            withInterceptors([authInterceptor])
         ),
     ],
 };

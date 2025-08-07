@@ -12,6 +12,12 @@ export class Api {
 
     private http = inject(HttpClient);
 
+    getToken(): string | null {
+        let token = localStorage.getItem('token');
+
+        return token;
+    }
+
     getAllUsers(): Observable<any> {
         return this.http.get(this.baseurl + '/users/', {
             headers: this.httpHeaders,
@@ -22,8 +28,8 @@ export class Api {
         return this.http.post<User>(this.baseurl + '/register/', user);
     }
 
-    login(user: User): Observable<User> {
-        return this.http.post<User>(this.baseurl + '/login/', user);
+    login(user: User): Observable<string> {
+        return this.http.post<string>(this.baseurl + '/login/', user);
     }
 
     getUserData(): Observable<any> {

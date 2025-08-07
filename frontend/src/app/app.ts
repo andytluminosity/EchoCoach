@@ -13,16 +13,15 @@ import { Home } from './home/home';
 export class App {
     protected title = 'EchoCoach';
 
-    userData = 'hi';
+    userData = 'Hello, Anonymous User';
 
     constructor(private api: Api) {
         this.getUserData();
     }
 
     getUserData = () => {
-        return 'hi';
         this.api.getUserData().subscribe({
-            next: (v) => (this.userData = 'hi ' + v.results),
+            next: (v) => (this.userData = 'Hello, ' + v.username),
             error: (e) => console.log(e),
         });
     };
