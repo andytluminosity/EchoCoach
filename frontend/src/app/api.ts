@@ -32,6 +32,14 @@ export class Api {
         return this.http.post<string>(this.baseurl + '/login/', user);
     }
 
+    logout(): void {
+        localStorage.removeItem('token');
+    }
+
+    isLoggedIn(): boolean {
+        return localStorage.getItem('token') != null;
+    }
+
     getUserData(): Observable<any> {
         return this.http.get(this.baseurl + '/user/', {
             headers: this.httpHeaders,

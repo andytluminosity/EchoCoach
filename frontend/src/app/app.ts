@@ -25,4 +25,9 @@ export class App {
             error: (e) => console.log(e),
         });
     };
+
+    logout = () => {
+        console.log('Logged out!');
+        this.api.logout();
+    };
 }
