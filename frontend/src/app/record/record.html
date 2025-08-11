@@ -1,1 +1,14 @@
-<p>record works!</p>
+<div class="record">
+    <button (click)="startRecording()">Start Recording</button>
+    <button>Pause Recording</button>
+    <button (click)="stopRecording()">Stop Recording</button>
+    <video #video id="video" width="640" height="480" autoplay="true"></video>
+    <video
+        #recordedVideo
+        id="video"
+        width="640"
+        height="480"
+        autoplay="true"
+        controls
+    ></video>
+</div>
