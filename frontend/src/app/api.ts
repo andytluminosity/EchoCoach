@@ -45,4 +45,8 @@ export class Api {
             headers: this.httpHeaders,
         });
     }
+
+    sendRecording(recording: FormData): Observable<any> {
+        return this.http.post(this.baseurl + '/analyze/', recording);
+    }
 }

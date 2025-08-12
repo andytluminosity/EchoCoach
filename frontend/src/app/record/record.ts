@@ -1,10 +1,12 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Api } from '../api';
 
 @Component({
     selector: 'app-record',
     imports: [],
     templateUrl: './record.html',
     styleUrl: './record.css',
+    providers: [Api],
 })
 export class Record {
     @ViewChild('video', { static: true }) public video!: ElementRef;
@@ -16,7 +18,7 @@ export class Record {
     recording: Blob[] = [];
     downloadUrl = '';
 
-    constructor() {}
+    constructor(private api: Api) {}
 
     ngAfterViewInit() {
         navigator.mediaDevices
@@ -49,6 +51,13 @@ export class Record {
                 });
                 this.downloadUrl = window.URL.createObjectURL(videoBuffer); // you can download with <a> tag
                 this.recordedVideo.nativeElement.src = this.downloadUrl;
+
+                const formData = new FormData();
+                formData.append('videoFile', videoBuffer);
+
+                this.api.sendRecording(formData).subscribe((response) => {
+                    console.log(response);
+                });
             };
         } catch (err) {
             console.log(err);
@@ -58,6 +67,12 @@ export class Record {
     stopRecording() {
         if (this.mediaRecorder) {
             this.mediaRecorder.stop();
+        }
+    }
+
+    pauseRecording() {
+        if (this.mediaRecorder) {
+            this.mediaRecorder.pause();
         }
     }
 }

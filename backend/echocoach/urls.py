@@ -20,6 +20,7 @@ from rest_framework import routers
 from rest_framework.authtoken.views import ObtainAuthToken
 
 from echocoach.myapp import views
+from pytorch_folder import views as pytorchviews
 
 router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
@@ -36,6 +37,8 @@ urlpatterns = [
     path('test/', views.index, name="index"),
     path('register/', views.register, name="Register"),
     path('login/', views.login, name="Login"),
-    path('user/', views.getUserData, name="User")
+    path('user/', views.getUserData, name="User"),
+
+    path('analyze/', pytorchviews.analyze, name="Analyze")
 
 ]
