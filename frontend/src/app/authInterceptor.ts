@@ -21,7 +21,6 @@ export function authInterceptor(
         request = request.clone({
             setHeaders: {
                 Authorization: `Token ${token}`,
-                'Content-Type': 'application/json',
             },
         });
     }
