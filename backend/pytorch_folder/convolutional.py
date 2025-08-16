@@ -58,7 +58,7 @@ print(f"Using {device} device")
 
 # defining the model
 class NeuralNetwork(nn.Module):
-    def __init__(self, input_shape: int, hidden_units: int, output_shape: int):
+    def __init__(self, input_shape: int):
         super().__init__()
         self.conv_block_1 = nn.Sequential(
             nn.Conv2d(in_channels=input_shape, # creating a conv layer. unlike linear layers, deals with nested tensor rather than flattened
@@ -134,7 +134,7 @@ class NeuralNetwork(nn.Module):
         logits = self.classifer(x)
         return logits
 
-model = NeuralNetwork(input_shape=1, hidden_units=10, output_shape=7).to(device) # input shape is 1, since 1 colour channel (b&w)
+model = NeuralNetwork(input_shape=1).to(device) # input shape is 1, since 1 colour channel (b&w)
 print(model)
 
 # now we make a loss function and optimizer to optimize the model!
