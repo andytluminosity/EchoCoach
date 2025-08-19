@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField
+import uuid
 
 # Create your models here. Models define our 'database layout'
 
@@ -21,4 +23,22 @@ class Reply(models.Model):
 #   Run 'python manage.py makemigrations myapp' to tell Django that our models have been updated.
 #   Run 'python manage.py migrate' to create model tables in database.
 
+class modelResponses(models.Model):
+    # Response ID (UUID v4)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Feedback for the interview
+    feedback_text = models.TextField(default="")
+
+    # Overall emotion of the user 
+    speech_emotion = models.CharField(max_length=200, default="")
+
+    # Facial expressions of the user over time
+    #   Make sure we feed in {"expression": str, "startTime": int}
+    facial_expressions = JSONField(default=list)
+
+    # Response creation date
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    
 

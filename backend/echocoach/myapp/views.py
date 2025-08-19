@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
-from echocoach.myapp.serializers import UserSerializer
+from echocoach.myapp.serializers import UserSerializer, modelResponsesSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -62,3 +62,17 @@ def getUserData(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
+@api_view(['POST'])
+def createModelResponse(request):
+    serializer = modelResponsesSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view(['GET'])
+def getModelMostRecentResponses(request):
+    numResponses = int(request.query_params.get('numResponses', 1))
+    modelResponses = modelResponses.objects.order_by('-created_at')[:numResponses]
+    serializer = modelResponsesSerializer(modelResponses, many=True)
+    return Response(serializer.data)
