@@ -41,5 +41,5 @@ urlpatterns = [
 
     path('analyze/', pytorchviews.analyze, name="Analyze"),
 
-    path('model-response/', views.createModelResponse, name="model-response")
+    path('model-response/', views.addAndGetModelResponses, name="model-response"),
 ]

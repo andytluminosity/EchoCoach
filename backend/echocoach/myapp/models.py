@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 import uuid
 
 # Create your models here. Models define our 'database layout'
@@ -27,6 +26,9 @@ class modelResponses(models.Model):
     # Response ID (UUID v4)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+    # User the response is for
+    user = models.CharField(max_length=200, default="")
+
     # Feedback for the interview
     feedback_text = models.TextField(default="")
 
@@ -35,7 +37,7 @@ class modelResponses(models.Model):
 
     # Facial expressions of the user over time
     #   Make sure we feed in {"expression": str, "startTime": int}
-    facial_expressions = JSONField(default=list)
+    facial_expressions = models.JSONField(default=list)
 
     # Response creation date
     created_at = models.DateTimeField(auto_now_add=True)

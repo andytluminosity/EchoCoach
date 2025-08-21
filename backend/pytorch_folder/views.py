@@ -55,7 +55,7 @@ def analyze(request):
 
             to_pil = torchvision.transforms.ToPILImage()
 
-            #fer2013
+            #fer2013 (Emotion)
 
             grayscale = torchvision.transforms.Grayscale() # create grayscale transform
             resize = torchvision.transforms.Resize((48,48))
@@ -69,7 +69,7 @@ def analyze(request):
             fer2013scores[pred] += 1
 
 
-            #nitec
+            #nitec (Eye contact)
             frame = torch.permute(frame, (1, 2, 0)) # permute torch tensor to be correct shape
             frame = frame.detach().cpu().numpy() # convert tensor into numpy array, which is what nitec accepts
             results = nitec_pipeline.predict(frame).results

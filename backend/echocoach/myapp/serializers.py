@@ -14,4 +14,4 @@ from .models import modelResponses
 class modelResponsesSerializer(serializers.ModelSerializer):
     class Meta:
         model = modelResponses
-        fields = ['id', 'feedback_text', 'speech_emotion', 'facial_expressions', 'created_at']
+        fields = ['id', 'user', 'feedback_text', 'speech_emotion', 'facial_expressions', 'created_at']

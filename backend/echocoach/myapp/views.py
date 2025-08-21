@@ -4,7 +4,7 @@ from django.shortcuts import render
 
 # Views are python functions which takes a web request and returns a web response (e.g html page)
 
-# Viewsets are basiclaly 'classes' of views. AKA a group of views with common behvaiour.
+# Viewsets are basically 'classes' of views. AKA a group of views with common behvaiour.
 
 from rest_framework.decorators import api_view, authentication_classes, permission_classes
 from django.contrib.auth.models import Group, User
@@ -16,6 +16,7 @@ from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
 from echocoach.myapp.serializers import UserSerializer, modelResponsesSerializer
+from echocoach.myapp.models import modelResponses
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -50,8 +51,7 @@ def login(request):
     user = get_object_or_404(User, username=request.data['username'])
     if not user.check_password(request.data['password']):
         return Response("missing user", status=status.HTTP_404_NOT_FOUND)
-    token, created = Token.objects.get_or_create(user=user)
-    serializer = UserSerializer(user)
+    token = Token.objects.get_or_create(user=user)[0]
     res = Response(token.key)
     
     return res
@@ -62,17 +62,25 @@ def getUserData(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
-@api_view(['POST'])
-def createModelResponse(request):
-    serializer = modelResponsesSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST', 'GET'])
+def addAndGetModelResponses(request):
+    if request.method == 'POST':
+        # Create model response
+        serializer = modelResponsesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
-def getModelMostRecentResponses(request):
-    numResponses = int(request.query_params.get('numResponses', 1))
-    modelResponses = modelResponses.objects.order_by('-created_at')[:numResponses]
-    serializer = modelResponsesSerializer(modelResponses, many=True)
-    return Response(serializer.data)
+    else:
+        # Get model response
+        user = request.query_params.get('user', None)
+        numResponses = request.query_params.get('numResponses')
+
+        results = modelResponses.objects.filter(user=user).order_by('-created_at')
+
+        if numResponses:
+            results = results[:int(numResponses)]
+
+        serializer = modelResponsesSerializer(results, many=True)
+        return Response(serializer.data)
