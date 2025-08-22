@@ -5,8 +5,14 @@ from torchvision.transforms import ToTensor
 from torch import nn
 import matplotlib.pyplot as plt
 
-train_dataset = torchvision.datasets.ImageFolder('./pytorch_folder/affectnet/Train', transform=torchvision.transforms.ToTensor())
-test_dataset = torchvision.datasets.ImageFolder('./pytorch_folder/affectnet/Test', transform=torchvision.transforms.ToTensor())
+preprocess = torchvision.transforms.Compose([
+    torchvision.transforms.Resize((224, 224)),
+    torchvision.transforms.ToTensor(),
+    torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+])
+
+train_dataset = torchvision.datasets.ImageFolder('./pytorch_folder/affectnet/Train', transform=preprocess)
+test_dataset = torchvision.datasets.ImageFolder('./pytorch_folder/affectnet/Test', transform=preprocess)
 
 train_dataloader = DataLoader(train_dataset, batch_size=64, shuffle=True)
 test_dataloader = DataLoader(test_dataset, batch_size=64, shuffle=True)
@@ -42,8 +48,12 @@ labels_map = {
 #     plt.imshow(torch.permute(img.squeeze(), (1,2,0)))
 # plt.show()
 
-device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu" # can be an accelerator, if available (like gpu)
+device = torch.device('mps')
 print(f"Using {device} device")
+
+# Warm-up
+for _ in range(100):
+    torch.matmul(torch.rand(500,500).to(device), torch.rand(500,500).to(device))
 
 # defining the model
 class NeuralNetwork(nn.Module):
@@ -123,63 +133,69 @@ class NeuralNetwork(nn.Module):
         logits = self.classifer(x)
         return logits
 
-model = NeuralNetwork(input_shape=3).to(device) # input shape is 1, since 1 colour channel (b&w)
-print(model)
+# model = NeuralNetwork(input_shape=3).to(device) # input shape is 1, since 1 colour channel (b&w)
+# # print(model)
 
-# now we make a loss function and optimizer to optimize the model!
+# model = torchvision.models.resnet18().to(device)
+# model.fc = torch.nn.Linear(model.fc.in_features, 8).to(device)
+# print(model)
 
-loss_fn = nn.CrossEntropyLoss() # CrossEntropyLoss is a loss fn, which is a fn that gauges the error b/w predicted output and target output
-optimizer = torch.optim.Adam(model.parameters(), lr=0.0001) # SGD, stochastic gradient descent, is an optimizer, an algorith which attempts to decrease loss
-# lr is the learning rate, the most important hyper parameter (parameter we can set)
+# # now we make a loss function and optimizer to optimize the model!
 
-# we can now begin to train the model
+# loss_fn = nn.CrossEntropyLoss() # CrossEntropyLoss is a loss fn, which is a fn that gauges the error b/w predicted output and target output
+# optimizer = torch.optim.Adam(model.parameters(), lr=0.001) # SGD, stochastic gradient descent, is an optimizer, an algorith which attempts to decrease loss
+# # lr is the learning rate, the most important hyper parameter (parameter we can set)
 
-def train(dataloader, model, loss_fn, optimizer):
-    size = len(dataloader.dataset)
-    model.train() # sets the model to training mode
-    for batch, (X, y) in enumerate(dataloader): # loops through every batch in dataloader
-        X, y = X.to(device), y.to(device)
+# # we can now begin to train the model
 
-        # compute prediction error
-        pred = model(X)
-        loss = loss_fn(pred, y)
+# def train(dataloader, model, loss_fn, optimizer):
+#     size = len(dataloader.dataset)
+#     model.train() # sets the model to training mode
+#     for batch, (X, y) in enumerate(dataloader): # loops through every batch in dataloader
+#         X, y = X.to(device), y.to(device)
 
-        # backpropagation - a gradient computation method to reduce difference b/w predicted and actual outputs
+#         # compute prediction error
+#         pred = model(X)
+#         loss = loss_fn(pred, y)
 
-        optimizer.zero_grad() # we set gradients back to zero every batch, so they don't accumulate
-        loss.backward()
-        optimizer.step() # performs a single optimization step
+#         # backpropagation - a gradient computation method to reduce difference b/w predicted and actual outputs
 
-        if batch % 100 == 0:
-            loss, current = loss.item(), (batch + 1) * len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+#         optimizer.zero_grad() # we set gradients back to zero every batch, so they don't accumulate
+#         loss.backward()
+#         optimizer.step() # performs a single optimization step
 
-# now that the model can be trained, we need to test it to ensure it's working
+#         if batch % 100 == 0:
+#             loss, current = loss.item(), (batch + 1) * len(X)
+#             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
-def test(dataloader, model, loss_fn):
-    size = len(dataloader.dataset)
-    num_batches = len(dataloader)
+# # now that the model can be trained, we need to test it to ensure it's working
 
-    model.eval() # sets the model to eval mode
-    test_loss, correct = 0, 0
-    with torch.inference_mode(): # disables gradient calculation
-        for X, y in dataloader:
-            X, y = X.to(device), y.to(device)
-            pred = model(X)
-            test_loss += loss_fn(pred, y).item()
-            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
-    test_loss /= num_batches
-    correct /= size
-    print(pred)
-    print(torch.argmax(pred, 1))
-    print(y)
-    print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+# def test(dataloader, model, loss_fn):
+#     size = len(dataloader.dataset)
+#     num_batches = len(dataloader)
 
-# now its time to actually train and test the model!
+#     model.eval() # sets the model to eval mode
+#     test_loss, correct = 0, 0
+#     with torch.inference_mode(): # disables gradient calculation
+#         for X, y in dataloader:
+#             X, y = X.to(device), y.to(device)
+#             pred = model(X)
+#             test_loss += loss_fn(pred, y).item()
+#             correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+#     test_loss /= num_batches
+#     correct /= size
+#     print(pred)
+#     print(torch.argmax(pred, 1))
+#     print(y)
+#     print(f"Test Error: \n Accuracy: {(100*correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
 
-epochs = 64 # an epoch is an iteration of the training cycle
-for t in range(epochs):
-    print(f"Epoch {t+1}\n-------------------------------")
-    train(train_dataloader, model, loss_fn, optimizer)
-    test(test_dataloader, model, loss_fn)
-print("Done!")
+# # now its time to actually train and test the model!
+
+# epochs = 64 # an epoch is an iteration of the training cycle
+# for t in range(epochs):
+#     print(f"Epoch {t+1}\n-------------------------------")
+#     train(train_dataloader, model, loss_fn, optimizer)
+#     test(test_dataloader, model, loss_fn)
+# print("Done!")
+
+# torch.save(model.state_dict(), 'affectnet.pth')
