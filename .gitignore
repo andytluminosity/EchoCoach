@@ -1,3 +1,5 @@
 backend/pytorch_folder/affectnet
 backend/pytorch_folder/__pycache__
 __pycache__
+backend/db.sqlite3
+backend/db.sqlite3
