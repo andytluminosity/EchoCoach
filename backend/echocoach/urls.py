@@ -42,4 +42,6 @@ urlpatterns = [
     path('analyze/', pytorchviews.analyze, name="Analyze"),
 
     path('model-response/', views.addAndGetModelResponses, name="model-response"),
+
+    path('recordings/', views.storeAndGetRecordings, name="recordings"),
 ]

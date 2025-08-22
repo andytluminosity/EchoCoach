@@ -41,6 +41,18 @@ class modelResponses(models.Model):
 
     # Response creation date
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
+class videoRecordings(models.Model):
+    # Recording ID (UUID v4)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # User the recording is for
+    user = models.CharField(max_length=200, default="")
+
+    # Recording file
+    recording = models.FileField(upload_to='recordings/{user}/{id}.webm')
+
+    # Recording creation date
+    created_at = models.DateTimeField(auto_now_add=True)
     
 

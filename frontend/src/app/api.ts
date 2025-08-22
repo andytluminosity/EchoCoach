@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { User } from '../types/user';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
     providedIn: 'root',
@@ -48,5 +49,15 @@ export class Api {
 
     sendRecording(recording: FormData): Observable<any> {
         return this.http.post(this.baseurl + '/analyze/', recording);
+    }
+
+    saveRecording(recording: Blob[]): Observable<any> {
+        return this.http.post(this.baseurl + '/recordings/', {
+            id: uuidv4(),
+            user: this.getUserData().subscribe((data) => {
+                return data;
+            }),
+            recording: recording,
+        });
     }
 }

@@ -15,8 +15,8 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
-from echocoach.myapp.serializers import UserSerializer, modelResponsesSerializer
-from echocoach.myapp.models import modelResponses
+from echocoach.myapp.serializers import UserSerializer, modelResponsesSerializer, videoRecordingsSerializer
+from echocoach.myapp.models import modelResponses, videoRecordings
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -83,4 +83,26 @@ def addAndGetModelResponses(request):
             results = results[:int(numResponses)]
 
         serializer = modelResponsesSerializer(results, many=True)
+        return Response(serializer.data)
+
+@api_view(['POST', 'GET'])
+def storeAndGetRecordings(request):
+    if request.method == 'POST':
+        # Store recording
+        serializer = videoRecordingsSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        # Get recordings
+        user = request.query_params.get('user', None)
+        numRecordings = request.query_params.get('numRecordings')
+
+        results = videoRecordings.objects.filter(user=user).order_by('-created_at')
+
+        if numRecordings:
+            results = results[:int(numRecordings)]
+
+        serializer = videoRecordingsSerializer(results, many=True)
         return Response(serializer.data)
