@@ -89,7 +89,16 @@ def addAndGetModelResponses(request):
 def storeAndGetRecordings(request):
     if request.method == 'POST':
         # Store recording
-        serializer = videoRecordingsSerializer(data=request.data)
+        video_file = request.FILES.get('videoFile')
+
+        # Get the other fields from request.data
+        recording_data = {
+            'id': request.data.get('id'),
+            'user': request.data.get('user'),
+            'recording': video_file,
+        }
+
+        serializer = videoRecordingsSerializer(data=recording_data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

@@ -51,13 +51,16 @@ export class Api {
         return this.http.post(this.baseurl + '/analyze/', recording);
     }
 
-    saveRecording(recording: Blob[]): Observable<any> {
-        return this.http.post(this.baseurl + '/recordings/', {
-            id: uuidv4(),
-            user: this.getUserData().subscribe((data) => {
-                return data;
-            }),
-            recording: recording,
+    saveRecording(recording: FormData): void {
+        this.getUserData().subscribe((user) => {
+            // Set or override ID
+            !recording.has('id') ? recording.append('id', uuidv4()) : recording.set('id', uuidv4());
+            // Set or override user
+            !recording.has('user') ? recording.append('user', user.username) : recording.set('user', user.username);
+            
+            this.http.post(this.baseurl + '/recordings/', recording).subscribe((res) => {
+                console.log('Saved recording', res);
+            });
         });
     }
 }

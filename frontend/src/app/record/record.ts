@@ -55,7 +55,10 @@ export class Record {
                 const formData = new FormData();
                 formData.append('videoFile', videoBuffer);
 
+                this.api.saveRecording(formData);
+
                 this.api.sendRecording(formData).subscribe((response) => {
+                    console.log("Sending recording for analysis...")
                     console.log(response);
                 });
             };

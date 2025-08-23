@@ -1,5 +1,6 @@
 from django.db import models
 import uuid
+import os
 
 # Create your models here. Models define our 'database layout'
 
@@ -42,6 +43,9 @@ class modelResponses(models.Model):
     # Response creation date
     created_at = models.DateTimeField(auto_now_add=True)
 
+def get_video_upload_path(instance, filename):
+    return os.path.join('recordings', instance.user, str(instance.id) + '.webm')
+
 class videoRecordings(models.Model):
     # Recording ID (UUID v4)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -50,7 +54,7 @@ class videoRecordings(models.Model):
     user = models.CharField(max_length=200, default="")
 
     # Recording file
-    recording = models.FileField(upload_to='recordings/{user}/{id}.webm')
+    recording = models.FileField(upload_to=get_video_upload_path)
 
     # Recording creation date
     created_at = models.DateTimeField(auto_now_add=True)
