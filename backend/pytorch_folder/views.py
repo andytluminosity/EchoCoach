@@ -1,4 +1,7 @@
+from ast import Raise
 from django.shortcuts import render
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 # Create your views here.
 
@@ -23,11 +26,18 @@ from django.http import HttpResponse
 import torch
 import torchvision
 import torchcodec
+import os
+import librosa
+import torch
+import torch.nn.functional as F
+import tempfile
+import subprocess
+
 from nitec import NITEC_Classifier, visualize
 from .fer2013 import Fer2013
 from .resemotenet import ResEmoteNet
 from .affectnet import NeuralNetwork
-import cv2
+from .speech_emotion_recognition_model.cnn_model import CNNModel
 import pathlib
 CWD = pathlib.Path.cwd()
 
@@ -35,6 +45,8 @@ nitec_pipeline = NITEC_Classifier(
     weights= CWD / "pytorch_folder" / "nitec" / "models" / 'nitec_rs18_e20.pth',
     device=torch.device('cpu') # or 'cpu'
 )
+
+speech_emotion_model_pipeline = CWD / "pytorch_folder" / "models" / 'cnn_speech_emotion_recognition_model.pth'
 
 fer2013 = Fer2013(1).to('cpu')
 fer2013.load_state_dict(torch.load(CWD / "pytorch_folder"  / "models" / 'fer2013.pth', weights_only=False, map_location=torch.device('cpu')))
@@ -55,7 +67,7 @@ test_transforms = torchvision.transforms.Compose([
 ])
 
 @api_view(['POST'])
-def analyze(request):
+def analyze_facial(request):
     data = request.FILES['videoFile']
 
     # note you need torchcodec (pip install torchcodec) AND ffmpeg installed (brew install ffmpeg)!
@@ -102,5 +114,143 @@ def analyze(request):
     
     return Response([totalscore / numscores, fer2013scores])
 
+def extract_audio(file_path: str):
+    try:
+        subprocess.run(
+            ['ffmpeg', '-i', file_path, '-ar', '22050', '-ac', '1', '-vn', 'extracted_audio.wav'],
+            stdout=subprocess.DEVNULL,  # Hide normal output
+            stderr=subprocess.PIPE,     # Capture error messages
+            check=True
+        )
+    except subprocess.CalledProcessError as e:
+        # Show the actual FFmpeg error message
+        print("Audio extraction failed with error:")
+        print(e.stderr.decode())  
 
+        # Rethrow the error
+        raise
 
+# file_path is a pure audio file
+def process_audio(file_path: str):
+    y, sr = librosa.load(file_path, sr=22050)
+
+    # Extract MFCCs
+    mfccs = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=30, n_fft=2048, hop_length=512)
+    mfccs = mfccs.flatten()  # shape: (n_mfcc * frames, )
+
+    # Convert to tensor and reshape to (1, seq_len, 1) instead of (1, 1, seq_len)
+    mfccs = torch.FloatTensor(mfccs).unsqueeze(0).unsqueeze(-1)  # (1, seq_len, 1)
+
+    # Pad or truncate to match CNN input length
+    input_length = 2376
+    if mfccs.shape[1] > input_length:
+        mfccs = mfccs[:, :input_length, :]
+    else:
+        mfccs = F.pad(mfccs, (0, 0, 0, input_length - mfccs.shape[1]))  # Pad along seq_len
+
+    return mfccs  # (1, seq_len, 1)
+
+@api_view(['POST'])
+def analyze_voice(request):
+    try:
+        # Assumes the video file is a .webm
+        video_file = request.FILES.get('videoFile')
+        if not video_file:
+            return Response({'error': 'No video file provided'}, status=400)
+
+        # Save the uploaded file to a temporary location
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as tmp_file:
+            for chunk in video_file.chunks():
+                tmp_file.write(chunk)
+            tmp_file_path = tmp_file.name
+
+        try:
+            extract_audio(tmp_file_path)
+
+            # extracted_audio.wav is the created file
+            features = process_audio('extracted_audio.wav')
+
+            # Recreate the model
+            model = CNNModel()  # same class as during training
+
+            # Load state dict
+            state_dict = torch.load(speech_emotion_model_pipeline, map_location='cpu')
+            model.load_state_dict(state_dict)
+
+            # Set to evaluation mode
+            model.eval()
+
+            with torch.no_grad():
+                outputs = model(features)
+                _, predicted = torch.max(outputs, 1)
+
+            emotion_labels = ['neutral', 'happy', 'sad', 'angry', 'fear', 'disgust', 'surprise']
+            predicted_emotion = emotion_labels[predicted.item()]
+
+            # Calculate the confidence scores
+            probabilities = F.softmax(outputs, dim=1)
+            confidence_scores = {
+                emotion: round(prob.item() * 100, 2)
+                for emotion, prob in zip(emotion_labels, probabilities[0])
+            }
+
+            return Response({
+                'emotion': predicted_emotion,
+                'confidence_scores': confidence_scores
+            })
+
+        finally:
+            os.unlink(tmp_file_path)
+            os.unlink('extracted_audio.wav')
+
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
+    try:
+        audio_file = request.FILES.get('videoFile') or request.data.get('videoFile')
+        if not audio_file:
+            return Response({'error': 'No audio file provided'}, status=400)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp_file:
+            for chunk in audio_file.chunks():
+                tmp_file.write(chunk)
+            tmp_file_path = tmp_file.name
+
+        try:
+            # Process the audio (librosa version)
+            features = process_audio(tmp_file_path)
+
+            # Load the pre-trained model
+            model = torch.load(speech_emotion_model_pipeline, map_location='cpu')
+            model.eval()
+
+            with torch.no_grad():
+                outputs = model(features)
+                _, predicted = torch.max(outputs, 1)
+
+            emotion_labels = ['neutral', 'happy', 'sad', 'angry', 'fear', 'disgust', 'surprise']
+            predicted_emotion = emotion_labels[predicted.item()]
+
+            probabilities = F.softmax(outputs, dim=1)
+            confidence_scores = {
+                emotion: round(prob.item() * 100, 2)
+                for emotion, prob in zip(emotion_labels, probabilities[0])
+            }
+
+            return Response({
+                'emotion': predicted_emotion,
+                'confidence_scores': confidence_scores
+            })
+
+        except Exception as e:
+            return Response({'error': f'Error processing audio: {str(e)}'}, status=500)
+
+        finally:
+            try:
+                os.unlink(tmp_file_path)
+            except:
+                pass
+
+    except KeyError:
+        return Response({'error': 'No audio file provided'}, status=400)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)

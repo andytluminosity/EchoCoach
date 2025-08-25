@@ -57,7 +57,7 @@ export class Record {
 
                 this.api.saveRecording(formData);
 
-                this.api.sendRecording(formData).subscribe((response) => {
+                this.api.sendRecording(formData).then((response) => {
                     console.log("Sending recording for analysis...")
                     console.log(response);
                 });

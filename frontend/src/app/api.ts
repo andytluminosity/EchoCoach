@@ -47,8 +47,14 @@ export class Api {
         });
     }
 
-    sendRecording(recording: FormData): Observable<any> {
-        return this.http.post(this.baseurl + '/analyze/', recording);
+    async sendRecording(recording: FormData): Promise<any> {
+        const facial_analysis_result = await this.http.post(this.baseurl + '/analyze-facial/', recording, {
+            headers: this.httpHeaders,
+        });
+        const voice_analysis_result = await this.http.post(this.baseurl + '/analyze-voice/', recording, {
+            headers: this.httpHeaders,
+        });
+        return {facial_analysis_result, voice_analysis_result};
     }
 
     saveRecording(recording: FormData): void {
