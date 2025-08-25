@@ -39,9 +39,10 @@ urlpatterns = [
     path('login/', views.login, name="Login"),
     path('user/', views.getUserData, name="User"),
 
-    path('analyze/', pytorchviews.analyze, name="Analyze"),
+    path('analyze-facial/', pytorchviews.analyze_facial, name="Analyze-Facial"),
+    path('analyze-voice/', pytorchviews.analyze_voice, name="Analyze-Voice"),
 
-    path('model-response/', views.addAndGetModelResponses, name="model-response"),
+    path('model-response/', views.addAndGetModelResponses, name="Model-Response"),
 
-    path('recordings/', views.storeAndGetRecordings, name="recordings"),
+    path('recordings/', views.storeAndGetRecordings, name="Recordings"),
 ]
