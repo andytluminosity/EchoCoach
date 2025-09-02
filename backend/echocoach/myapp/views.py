@@ -21,6 +21,7 @@ from echocoach.myapp.models import modelResponses, videoRecordings
 import whisper
 import tempfile
 import os
+import openai
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -136,7 +137,58 @@ def speech_to_text(request):
         # Result is a dictionary
         result = model.transcribe(tmp_file_path)
 
+        # Return the text as a string
         return Response(result["text"].strip())
 
     finally:
         os.unlink(tmp_file_path)
+
+@api_view(['POST'])
+def give_ai_feedback(request):
+    question = request.data.get('question')
+    text = request.data.get('text')
+    emotion = request.data.get('emotion')
+
+    # Not sure how we should handle the facial expressions
+    # I'll let you figure it out - Andy 
+
+    # Note: We should store the API key in the database 
+    #       and retrieve it here. This is here temporarily
+    openai.api_key = request.data.get('api_key')
+
+    response = openai.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {
+                "role": "system",
+                "content": """
+                    You are an expert career coach who helps candidates improve their  
+                    interview answers. 
+                    Provide constructive, actionable, and polite feedback. Focus on 
+                    clarity, confidence, content, and professionalism. Include 
+                    strengths, areas to improve, and example phrasing suggestions.
+                    """
+            },
+            {
+                "role": "user",
+                "content": f"""
+                Interview question: {question}
+
+                Candidate's answer: {text}
+
+                Dominant emotion in delivery: {emotion}
+
+                Please take the candidate's answer and dominant emotion 
+                into account when providing feedback.
+                """
+            }
+        ],
+        max_tokens=200,
+        temperature=0.3
+    )
+
+    feedback = response.choices[0].message.content
+
+    return Response(feedback)
+
+    
