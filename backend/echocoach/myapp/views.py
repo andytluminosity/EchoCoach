@@ -18,6 +18,9 @@ from django.shortcuts import get_object_or_404
 from echocoach.myapp.serializers import UserSerializer, modelResponsesSerializer, videoRecordingsSerializer
 from echocoach.myapp.models import modelResponses, videoRecordings
 
+import whisper
+import tempfile
+import os
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -115,3 +118,25 @@ def storeAndGetRecordings(request):
 
         serializer = videoRecordingsSerializer(results, many=True)
         return Response(serializer.data)
+
+# Load the model (small/medium/large depending on accuracy vs speed)
+model = whisper.load_model("base")
+
+@api_view(['POST'])
+def speech_to_text(request):
+    # Assumes .wav file
+    speech_file = request.FILES.get('file')
+
+    try:
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp_file:
+            for chunk in speech_file.chunks():
+                tmp_file.write(chunk)
+            tmp_file_path = tmp_file.name
+
+        # Result is a dictionary
+        result = model.transcribe(tmp_file_path)
+
+        return Response(result["text"].strip())
+
+    finally:
+        os.unlink(tmp_file_path)

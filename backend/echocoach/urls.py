@@ -45,4 +45,6 @@ urlpatterns = [
     path('model-response/', views.addAndGetModelResponses, name="Model-Response"),
 
     path('recordings/', views.storeAndGetRecordings, name="Recordings"),
+
+    path('speech-to-text/', views.speech_to_text, name="Speech-to-Text"),
 ]
