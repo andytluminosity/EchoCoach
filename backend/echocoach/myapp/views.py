@@ -148,6 +148,7 @@ def give_ai_feedback(request):
     question = request.data.get('question')
     text = request.data.get('text')
     emotion = request.data.get('emotion')
+    word_limit = request.data.get('word_limit')
 
     # Not sure how we should handle the facial expressions
     # I'll let you figure it out - Andy 
@@ -157,16 +158,19 @@ def give_ai_feedback(request):
     openai.api_key = request.data.get('api_key')
 
     response = openai.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
+        model = "gpt-4o-mini",
+        messages = [
             {
                 "role": "system",
                 "content": """
                     You are an expert career coach who helps candidates improve their  
-                    interview answers. 
+                    interview answers.
+
                     Provide constructive, actionable, and polite feedback. Focus on 
                     clarity, confidence, content, and professionalism. Include 
                     strengths, areas to improve, and example phrasing suggestions.
+
+                    Keep your feedback concise and strictly under {word_limit} words.
                     """
             },
             {
@@ -180,11 +184,13 @@ def give_ai_feedback(request):
 
                 Please take the candidate's answer and dominant emotion 
                 into account when providing feedback.
+
+                Keep your feedback concise and strictly under {word_limit} words.
                 """
             }
         ],
-        max_tokens=200,
-        temperature=0.3
+        max_tokens = int(word_limit * 1.5),
+        temperature = 0.3
     )
 
     feedback = response.choices[0].message.content

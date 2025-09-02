@@ -47,4 +47,6 @@ urlpatterns = [
     path('recordings/', views.storeAndGetRecordings, name="Recordings"),
 
     path('speech-to-text/', views.speech_to_text, name="Speech-to-Text"),
+
+    path('ai-feedback/', views.give_ai_feedback, name="AI-Feedback"),
 ]
