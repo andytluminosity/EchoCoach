@@ -1,8 +1,21 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { User } from '../types/user';
 import { v4 as uuidv4 } from 'uuid';
+
+interface AnalyzeVoiceResponse {
+    emotion: string;
+    confidence_scores: {
+      neutral: number;
+      happy: number;
+      sad: number;
+      angry: number;
+      fear: number;
+      disgust: number;
+      surprise: number;
+    };
+}
 
 @Injectable({
     providedIn: 'root',
@@ -48,13 +61,37 @@ export class Api {
     }
 
     async sendRecording(recording: FormData): Promise<any> {
-        const facial_analysis_result = await this.http.post(this.baseurl + '/analyze-facial/', recording, {
+        const facial_analysis_result = await firstValueFrom(this.http.post(this.baseurl + '/analyze-facial/', recording, {
             headers: this.httpHeaders,
-        });
-        const voice_analysis_result = await this.http.post(this.baseurl + '/analyze-voice/', recording, {
+        }));
+        const voice_analysis_result = await firstValueFrom(this.http.post<AnalyzeVoiceResponse>(this.baseurl + '/analyze-voice/', recording, {
             headers: this.httpHeaders,
-        });
-        return {facial_analysis_result, voice_analysis_result};
+        }));
+
+        const transcribed_text = await firstValueFrom(this.http.post<string>(this.baseurl + '/speech-to-text/', recording, {
+            headers: this.httpHeaders,
+        }));
+
+        // TODO: Get API key from database
+        const api_key = ""
+
+        // const ai_feedback = await firstValueFrom(this.http.post(this.baseurl + '/ai-feedback/', {
+        //     headers: this.httpHeaders,
+        //     body: {
+        //         "question": "Can you describe a time when you faced a difficult problem at work and how you solved it?",
+        //         "text": transcribed_text,
+        //         "emotion": voice_analysis_result.emotion,
+        //         "api_key": api_key,
+        //         "word_limit": 200
+        //     }
+        // }));
+
+        return {
+            facial_analysis_result,
+            voice_analysis_result,
+            transcribed_text,
+            // ai_feedback
+        };
     }
 
     saveRecording(recording: FormData): void {
