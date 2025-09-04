@@ -7,13 +7,13 @@ import { v4 as uuidv4 } from 'uuid';
 interface AnalyzeVoiceResponse {
     emotion: string;
     confidence_scores: {
-      neutral: number;
-      happy: number;
-      sad: number;
-      angry: number;
-      fear: number;
-      disgust: number;
-      surprise: number;
+        neutral: number;
+        happy: number;
+        sad: number;
+        angry: number;
+        fear: number;
+        disgust: number;
+        surprise: number;
     };
 }
 
@@ -61,19 +61,22 @@ export class Api {
     }
 
     async sendRecording(recording: FormData): Promise<any> {
-        const facial_analysis_result = await firstValueFrom(this.http.post(this.baseurl + '/analyze-facial/', recording, {
-            headers: this.httpHeaders,
-        }));
-        const voice_analysis_result = await firstValueFrom(this.http.post<AnalyzeVoiceResponse>(this.baseurl + '/analyze-voice/', recording, {
-            headers: this.httpHeaders,
-        }));
+        const facial_analysis_result = await firstValueFrom(
+            this.http.post(this.baseurl + '/analyze-facial/', recording)
+        );
+        const voice_analysis_result = await firstValueFrom(
+            this.http.post<AnalyzeVoiceResponse>(
+                this.baseurl + '/analyze-voice/',
+                recording
+            )
+        );
 
-        const transcribed_text = await firstValueFrom(this.http.post<string>(this.baseurl + '/speech-to-text/', recording, {
-            headers: this.httpHeaders,
-        }));
+        const transcribed_text = await firstValueFrom(
+            this.http.post<string>(this.baseurl + '/speech-to-text/', recording)
+        );
 
         // TODO: Get API key from database
-        const api_key = ""
+        const api_key = '';
 
         // const ai_feedback = await firstValueFrom(this.http.post(this.baseurl + '/ai-feedback/', {
         //     headers: this.httpHeaders,
@@ -97,13 +100,19 @@ export class Api {
     saveRecording(recording: FormData): void {
         this.getUserData().subscribe((user) => {
             // Set or override ID
-            !recording.has('id') ? recording.append('id', uuidv4()) : recording.set('id', uuidv4());
+            !recording.has('id')
+                ? recording.append('id', uuidv4())
+                : recording.set('id', uuidv4());
             // Set or override user
-            !recording.has('user') ? recording.append('user', user.username) : recording.set('user', user.username);
-            
-            this.http.post(this.baseurl + '/recordings/', recording).subscribe((res) => {
-                console.log('Saved recording', res);
-            });
+            !recording.has('user')
+                ? recording.append('user', user.username)
+                : recording.set('user', user.username);
+
+            this.http
+                .post(this.baseurl + '/recordings/', recording)
+                .subscribe((res) => {
+                    console.log('Saved recording', res);
+                });
         });
     }
 }
