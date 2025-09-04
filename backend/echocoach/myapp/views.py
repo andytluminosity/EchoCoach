@@ -126,7 +126,7 @@ model = whisper.load_model("base")
 @api_view(['POST'])
 def speech_to_text(request):
     # Assumes .wav file
-    speech_file = request.FILES.get('file')
+    speech_file = request.FILES.get('videoFile')
 
     try:
         with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as tmp_file:
