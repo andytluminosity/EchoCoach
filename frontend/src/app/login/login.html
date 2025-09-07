@@ -1,12 +1,42 @@
-<h1>Login</h1>
-<div class="login">
-    <form class="form" #f="ngForm" (ngSubmit)="login(f)">
-        <label for="username">Username:</label>
-        <input type="text" name="username" id="username" required ngModel />
-        <label for="email">Email:</label>
-        <input type="email" name="email" id="email" required ngModel />
-        <label for="password">Password:</label>
-        <input type="password" name="password" id="password" required ngModel />
-        <input type="submit" class="submit" />
-    </form>
-</div>
+<form class="self-center justify-self-center" #f="ngForm" (ngSubmit)="login(f)">
+    <fieldset
+        class="fieldset bg-base-200 border-base-300 rounded-box w-sm border p-4"
+    >
+        <legend class="fieldset-legend">Login</legend>
+
+        <label class="label">Username</label>
+        <input
+            type="text"
+            name="username"
+            id="username"
+            placeholder="Username"
+            class="input w-full"
+            required
+            ngModel
+        />
+
+        <label class="label">Email</label>
+        <input
+            type="email"
+            name="email"
+            id="email"
+            placeholder="Email"
+            class="input w-full"
+            required
+            ngModel
+        />
+
+        <label class="label">Password</label>
+        <input
+            type="password"
+            name="password"
+            id="password"
+            placeholder="Password"
+            class="input w-full"
+            required
+            ngModel
+        />
+
+        <input type="submit" class="btn btn-neutral mt-4" value="Login" />
+    </fieldset>
+</form>
