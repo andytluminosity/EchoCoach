@@ -13,18 +13,7 @@ import { Home } from './home/home';
 export class App {
     protected title = 'EchoCoach';
 
-    userData = 'Hello, Anonymous User';
-
-    constructor(private api: Api) {
-        this.getUserData();
-    }
-
-    getUserData = () => {
-        this.api.getUserData().subscribe({
-            next: (v) => (this.userData = 'Hello, ' + v.username),
-            error: (e) => console.log(e),
-        });
-    };
+    constructor(private api: Api) {}
 
     logout = () => {
         console.log('Logged out!');

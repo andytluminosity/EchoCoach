@@ -1,20 +1,20 @@
 <main class="main">
-    <div class="header">
-        <div class="title">
-            <a class="main-title" [routerLink]="['/']"><h1>EchoCoach</h1></a>
-            <p>Your personal voice and speech coach</p>
+    <div class="navbar bg-base-100 shadow-sm pt-10 pb-10">
+        <div class="flex-1 align-middle">
+            <a class="btn btn-ghost text-5xl" [routerLink]="['/']">EchoCoach</a>
+            <a class="btn btn-ghost text-xl" [routerLink]="['/']">Home</a>
+            <a class="btn btn-ghost text-xl" [routerLink]="['record']"
+                >Record</a
+            >
+            <a class="btn btn-ghost text-xl">Results</a>
         </div>
-        <div class="auth">
-            <button [routerLink]="['register']">Register</button>
-            <button [routerLink]="['login']">Login</button>
-            <button (click)="logout()">Logout</button>
-            <button [routerLink]="['record']">Record</button>
+        <div class="flex-none">
+            <a class="btn btn-ghost text-xl" [routerLink]="['login']">Login</a>
+            <a class="btn btn-ghost text-xl" [routerLink]="['register']"
+                >Register</a
+            >
+            <a class="btn btn-ghost text-xl" (click)="logout()">Logout</a>
         </div>
     </div>
-    <div class="greetings">
-        <h1>{{ userData }}</h1>
-    </div>
-    <div class="content">
-        <router-outlet></router-outlet>
-    </div>
+    <router-outlet></router-outlet>
 </main>

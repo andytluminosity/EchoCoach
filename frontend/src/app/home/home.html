@@ -1,26 +1,65 @@
-<div class="home">
-    <div class="start-button">
-        <button onclick="() => {}">
-            <span class="button-description">Start the magic</span>
-        </button>
-    </div>
-    <div class="body">
-        <div class="camera">
-            <h2 style="text-align: center">Camera</h2>
+<div>
+    <div class="mt-8 ml-12">
+        <div class="flex">
+            <h1 class="text-4xl font-semibold">Hello,&nbsp;</h1>
+            <h1 class="text-4xl font-bold text-primary">{{ userData }}</h1>
         </div>
-        <div class="transcript">
-            <h2>Transcript</h2>
-            <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </p>
-        </div>
+        <h1 class="mt-3 text-4xl">
+            EchoCoach is your personal voice and speech coach
+        </h1>
     </div>
+    <div class="flex mt-24 pl-32 pr-32 w-full gap-10">
+        <div class="card bg-base-200 w-1/3">
+            <figure>
+                <img src="https://placehold.co/600x400" />
+            </figure>
+            <div class="card-body">
+                <h2 class="card-title">Your Very Own AI Coach</h2>
+                <p>
+                    EchoCoach is an artificial intelligence program which uses
+                    neural networks to analyze your speech, and give feedback on
+                    your emotions, delivery, and expressions!
+                </p>
+            </div>
+        </div>
 
-    <div>
-        <h1>List of Users</h1>
-        @for (user of users; track user.username) {
-        <li>{{ user.username }}</li>
-        }
+        <div class="card bg-base-200 w-1/3">
+            <figure>
+                <img src="https://placehold.co/600x400" />
+            </figure>
+            <div class="card-body">
+                <h2 class="card-title">Record Your Speech</h2>
+                <p>
+                    Record your speech using your webcam and microphone. Choose
+                    whether or not to perform a mock interview with a question
+                    prompt, or practice a free speech!
+                </p>
+                <div class="card-actions justify-end">
+                    <button class="btn btn-primary" [routerLink]="['record']">
+                        Record
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="card bg-base-200 w-1/3">
+            <figure>
+                <img src="https://placehold.co/600x400" />
+            </figure>
+            <div class="card-body">
+                <h2 class="card-title">Get Your Results</h2>
+                <p>
+                    EchoCoach will then analyze your recording, and give
+                    feedback using a set of neural networks, so you can see
+                    where you need to improve. You can view your recordings and
+                    results at any time!
+                </p>
+                <div class="card-actions justify-end">
+                    <button class="btn btn-primary" [routerLink]="['record']">
+                        View Your Recordings
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
