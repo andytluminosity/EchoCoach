@@ -121,7 +121,7 @@ def storeAndGetRecordings(request):
         return Response(serializer.data)
 
 # Load the model (small/medium/large depending on accuracy vs speed)
-model = whisper.load_model("base")
+model = whisper.load_model("base.en")
 
 @api_view(['POST'])
 def speech_to_text(request):
