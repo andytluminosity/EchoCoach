@@ -57,3 +57,33 @@ Angular CLI does not come with an end-to-end testing framework by default. You c
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+
+## Backend
+
+Note: Python 3.13 is required
+
+Installation of virtual environment
+
+```bash
+python -m venv venv
+```
+
+```bash
+source venv/bin/activate # Linux/Mac
+venv\Scripts\activate.bat # Windows
+```
+
+Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
+The backend is a Django application that provides the API for the frontend. It is located in the `backend` directory.
+
+To run the backend, navigate to the `backend` directory and run:
+
+```bash
+python manage.py runserver
+```
+
+Note: Make sure to switch the environment to venv before running the backend by running
