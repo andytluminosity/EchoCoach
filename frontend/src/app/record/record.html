@@ -1,15 +1,122 @@
-<div class="record">
-    <button (click)="startRecording()">Start Recording</button>
-    <button (click)="pauseRecording()">Pause Recording</button>
-    <button (click)="stopRecording()">Stop Recording</button>
-    {{recording.length}}
-    <video #video id="video" width="640" height="480" autoplay="true"></video>
+<dialog id="help_modal" class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold">Help</h3>
+        <p class="py-4">
+            Welcome to the record screen! Here, you can record your presentation
+            in order to get it analyze by EchoCoach! Just press the Start
+            Recording button when your ready, and the Stop Recording button when
+            you are finished! Our AI will then analyze your video, and give you
+            your feedback.
+        </p>
+        <div class="modal-action">
+            <form method="dialog">
+                <!-- if there is a button in form, it will close the modal -->
+                <button class="btn">Close</button>
+            </form>
+        </div>
+    </div>
+</dialog>
+<div class="flex flex-col items-center mt-4 gap-5">
+    <div class="flex items-center-safe justify-center">
+        <h1 class="label text-base-content text-4xl font-bold mr-1">Record</h1>
+        <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-12"
+            onclick="help_modal.showModal()"
+        >
+            <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"
+            />
+        </svg>
+    </div>
     <video
+        #video
+        id="video"
+        class="border-3 border-accent"
+        width="640"
+        height="480"
+        autoplay="true"
+    ></video>
+    <div class="flex gap-2">
+        <button
+            class="btn btn-success"
+            (click)="startRecording()"
+            [disabled]="this.mediaRecorder"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347a1.125 1.125 0 0 1-1.667-.986V5.653Z"
+                />
+            </svg>
+
+            Start Recording
+        </button>
+        <button
+            class="btn btn-warning"
+            (click)="pauseRecording()"
+            [disabled]="!this.mediaRecorder"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M21 7.5V18M15 7.5V18M3 16.811V8.69c0-.864.933-1.406 1.683-.977l7.108 4.061a1.125 1.125 0 0 1 0 1.954l-7.108 4.061A1.125 1.125 0 0 1 3 16.811Z"
+                />
+            </svg>
+
+            Pause Recording
+        </button>
+        <button
+            class="btn btn-error"
+            (click)="stopRecording()"
+            [disabled]="!this.mediaRecorder"
+        >
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M5.25 7.5A2.25 2.25 0 0 1 7.5 5.25h9a2.25 2.25 0 0 1 2.25 2.25v9a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-9Z"
+                />
+            </svg>
+
+            Stop Recording
+        </button>
+    </div>
+    <!-- <video
         #recordedVideo
         id="video"
         width="640"
         height="480"
         autoplay="true"
         controls
-    ></video>
+    ></video> -->
 </div>
