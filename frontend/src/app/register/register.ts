@@ -1,9 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Api } from '../api';
-import { User } from '../../types/user';
 import { NgForm } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 
 // Validate email from Stack Overflow
 const validateEmail = (email: string) => {
@@ -22,6 +22,8 @@ const validateEmail = (email: string) => {
     providers: [Api],
 })
 export class Register {
+    private router = inject(Router);
+
     constructor(private api: Api) {}
 
     passwordsMatch: boolean = false;
@@ -66,5 +68,6 @@ export class Register {
         }
 
         this.api.register(f.value).subscribe();
+        this.router.navigate(['']);
     };
 }
