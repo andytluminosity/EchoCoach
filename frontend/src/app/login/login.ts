@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Api } from '../api';
 import { NgForm } from '@angular/forms';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-login',
@@ -11,6 +12,8 @@ import { FormsModule } from '@angular/forms';
     providers: [Api],
 })
 export class Login {
+    private router = inject(Router);
+
     constructor(private api: Api) {
         this.getAllUsers();
     }
@@ -19,6 +22,8 @@ export class Login {
         this.api.login(f.value).subscribe((response) => {
             const userDataString = JSON.stringify(response);
             localStorage.setItem('token', response);
+            this.router.navigate(['']);
+            window.location.reload();
         });
     };
 
