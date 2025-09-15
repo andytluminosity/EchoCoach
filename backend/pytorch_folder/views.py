@@ -36,7 +36,7 @@ import subprocess
 from nitec import NITEC_Classifier, visualize
 from .fer2013 import Fer2013
 from .resemotenet import ResEmoteNet
-from .affectnet import NeuralNetwork
+from .affectnet import AffectNet
 from .speech_emotion_recognition_model.cnn_model import CNNModel
 import pathlib
 CWD = pathlib.Path.cwd()
@@ -56,7 +56,7 @@ resemotenet = ResEmoteNet().to('cpu')
 resemotenet.load_state_dict(torch.load(CWD / "pytorch_folder"  / "models" / 'best_resemotenet_model.pth', weights_only=False, map_location=torch.device('cpu')))
 resemotenet.eval()
 
-affectnet = NeuralNetwork(3).to('cpu')
+affectnet = AffectNet(3).to('cpu')
 affectnet.load_state_dict(torch.load(CWD / "pytorch_folder"  / "models" / 'affectnet.pth', weights_only=False, map_location=torch.device('cpu')))
 affectnet.eval()
 
