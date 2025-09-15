@@ -59,19 +59,19 @@
             <a
                 class="btn btn-ghost text-xl"
                 [routerLink]="['login']"
-                *ngIf="!this.isLoggedIn"
+                *ngIf="!this.isLoggedIn()"
                 >Login</a
             >
             <a
                 class="btn btn-ghost text-xl"
                 [routerLink]="['register']"
-                *ngIf="!this.isLoggedIn"
+                *ngIf="!this.isLoggedIn()"
                 >Register</a
             >
             <a
                 class="btn btn-ghost text-xl"
                 (click)="logout()"
-                *ngIf="this.isLoggedIn"
+                *ngIf="this.isLoggedIn()"
                 >Logout</a
             >
             <div class="dropdown dropdown-end">

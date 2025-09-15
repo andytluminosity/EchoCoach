@@ -19,11 +19,11 @@ export class Login {
     }
 
     login = (f: NgForm) => {
-        this.api.login(f.value).subscribe((response) => {
-            const userDataString = JSON.stringify(response);
-            localStorage.setItem('token', response);
+        this.api.login(f.value).subscribe((response: any) => {
+            const tokenString = JSON.stringify(response);
+            localStorage.setItem('token', tokenString);
             this.router.navigate(['']);
-            window.location.reload();
+            // window.location.reload();
         });
     };
 

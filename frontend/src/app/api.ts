@@ -26,10 +26,13 @@ export class Api {
 
     private http = inject(HttpClient);
 
-    getToken(): string | null {
+    getTokenKey(): string | null {
         let token = localStorage.getItem('token');
+        if (!token) {
+            return null;
+        }
 
-        return token;
+        return JSON.parse(token).key;
     }
 
     getAllUsers(): Observable<any> {
@@ -52,6 +55,15 @@ export class Api {
 
     isLoggedIn(): boolean {
         return localStorage.getItem('token') != null;
+    }
+
+    getCurrentUsername(): string {
+        let token = localStorage.getItem('token');
+        if (!token) {
+            return 'Anonymous User';
+        }
+
+        return JSON.parse(token).user;
     }
 
     getUserData(): Observable<any> {

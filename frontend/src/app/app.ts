@@ -14,15 +14,14 @@ import { CommonModule } from '@angular/common';
 export class App {
     protected title = 'EchoCoach';
 
-    isLoggedIn = false;
+    // isLoggedIn = false;
 
-    constructor(private api: Api) {
-        this.isLoggedIn = api.isLoggedIn();
-    }
+    constructor(private api: Api) {}
+
+    isLoggedIn = () => this.api.isLoggedIn();
 
     logout = () => {
         console.log('Logged out!');
         this.api.logout();
-        window.location.reload();
     };
 }

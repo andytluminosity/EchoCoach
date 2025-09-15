@@ -15,7 +15,7 @@ export function authInterceptor(
     next: HttpHandlerFn
 ) {
     // Inject the current `AuthService` and use it to get an authentication token:
-    const token = inject(Api).getToken();
+    const token = inject(Api).getTokenKey();
     // Clone the request to add the authentication header.
     if (token) {
         request = request.clone({

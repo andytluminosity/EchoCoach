@@ -10,16 +10,9 @@ import { RouterModule } from '@angular/router';
     providers: [Api],
 })
 export class Home {
-    userData = 'Anonymous User';
+    constructor(private api: Api) {}
 
-    constructor(private api: Api) {
-        this.getUserData();
-    }
-
-    getUserData = () => {
-        this.api.getUserData().subscribe({
-            next: (v) => (this.userData = v.username),
-            error: (e) => console.log(e),
-        });
+    getUsername = () => {
+        return this.api.getCurrentUsername();
     };
 }
