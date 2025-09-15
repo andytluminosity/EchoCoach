@@ -1,3 +1,4 @@
+import sys
 from ast import Raise
 from django.shortcuts import render
 from rest_framework.decorators import api_view
@@ -25,7 +26,6 @@ from django.http import HttpResponse
 
 import torch
 import torchvision
-import torchcodec
 import os
 import librosa
 import torch
@@ -70,49 +70,105 @@ test_transforms = torchvision.transforms.Compose([
 def analyze_facial(request):
     data = request.FILES['videoFile']
 
-    # note you need torchcodec (pip install torchcodec) AND ffmpeg installed (brew install ffmpeg)!
+    # note you need ffmpeg installed! (brew install ffmpeg)
     # export DYLD_FALLBACK_LIBRARY_PATH=/opt/homebrew/lib
-    
-    decoder = torchcodec.decoders.VideoDecoder(data)
 
-    fer2013scores = [0,0,0,0,0,0,0,0]
+    facial_expressions_scores = [0,0,0,0,0,0,0,0]
     totalscore = 0
     numscores = 0
 
-    with torch.no_grad():
-        for frame in decoder:
+    if sys.platform.startswith('win'):
+        from deffcode import FFdecoder
 
-            to_pil = torchvision.transforms.ToPILImage()
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.webm') as tmp_file:
+            for chunk in data.chunks():
+                tmp_file.write(chunk)
+            tmp_file_path = tmp_file.name
 
-            #fer2013 (Emotion)
+        try:
+            decoder = FFdecoder(tmp_file_path).formulate()
+            with torch.no_grad():
+                for frame in decoder.generateFrame():
 
-            grayscale = torchvision.transforms.Grayscale() # create grayscale transform
-            normalize = torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
-            crop = torchvision.transforms.CenterCrop(size=(96, 96))
-            resize = torchvision.transforms.Resize((96))
-            # fer2013_frame = grayscale(frame) # convert frame into grayscale, since model evaluates grayscale images
-            fer2013_frame = resize(frame) # resize frame to fit model
-            fer2013_frame = crop(fer2013_frame)
-            fer2013_frame = torchvision.transforms.functional.convert_image_dtype(fer2013_frame, torch.float32) # convert datatype of tensor from uint8 to float32
-            # fer2013_frame = normalize(fer2013_frame)
-            image = to_pil(fer2013_frame)
-            image.save('output.png')
-            fer2013_frame = fer2013_frame.unsqueeze(0) # unsqueeze is to produce fourth dimension in tensor, batch size
-            results = affectnet(fer2013_frame)
-            print(results)
-            pred = results[0].argmax(0)
-            fer2013scores[pred] += 1              
+                    # check if frame is None
+                    if frame is None:
+                        break
+
+                    tensor = torch.from_numpy(frame)
+                    tensor = torch.permute(tensor, (2, 0, 1))
+
+                    #fer2013 (Emotion)
+
+                    #Transforms
+                    grayscale = torchvision.transforms.Grayscale() # create grayscale transform
+                    normalize = torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                    crop = torchvision.transforms.CenterCrop(size=(96, 96))
+                    resize = torchvision.transforms.Resize((96))
+                    to_pil = torchvision.transforms.ToPILImage()
+
+                    # fer2013_frame = grayscale(frame) # convert frame into grayscale, since model evaluates grayscale images
+                    resemotenet = resize(tensor) # resize frame to fit model
+                    resemotenet = crop(resemotenet)
+                    resemotenet = torchvision.transforms.functional.convert_image_dtype(resemotenet, torch.float32) # convert datatype of tensor from uint8 to float32
+                    # fer2013_frame = normalize(fer2013_frame)
+                    # image = to_pil(fer2013_frame)
+                    # image.save('output.png')
+                    resemotenet = resemotenet.unsqueeze(0) # unsqueeze is to produce fourth dimension in tensor, batch size
+                    results = affectnet(resemotenet)
+                    # print(results)
+                    pred = results[0].argmax(0)
+                    facial_expressions_scores[pred] += 1              
 
 
-            #nitec (Eye contact)
-            frame = torch.permute(frame, (1, 2, 0)) # permute torch tensor to be correct shape
-            frame = frame.detach().cpu().numpy() # convert tensor into numpy array, which is what nitec accepts
-            results = nitec_pipeline.predict(frame).results
-            for result in results:
-                totalscore += result
-                numscores += 1
+                    #nitec (Eye contact)
+                    results = nitec_pipeline.predict(frame).results
+                    for result in results:
+                        totalscore += result
+                        numscores += 1
+
+            # terminate the decoder
+            decoder.terminate()
+        finally:
+            os.unlink(tmp_file_path)
+    else:
+        import torchcodec
+        decoder = torchcodec.decoders.VideoDecoder(data)
+        with torch.no_grad():
+            for frame in decoder:
+
+
+                #fer2013 (Emotion)
+
+                #Transforms
+                grayscale = torchvision.transforms.Grayscale() # create grayscale transform
+                normalize = torchvision.transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+                crop = torchvision.transforms.CenterCrop(size=(96, 96))
+                resize = torchvision.transforms.Resize((96))
+                to_pil = torchvision.transforms.ToPILImage()
+                
+                # fer2013_frame = grayscale(frame) # convert frame into grayscale, since model evaluates grayscale images
+                resemotenet = resize(frame) # resize frame to fit model
+                resemotenet = crop(resemotenet)
+                resemotenet = torchvision.transforms.functional.convert_image_dtype(resemotenet, torch.float32) # convert datatype of tensor from uint8 to float32
+                # fer2013_frame = normalize(fer2013_frame)
+                # image = to_pil(fer2013_frame)
+                # image.save('output.png')
+                resemotenet = resemotenet.unsqueeze(0) # unsqueeze is to produce fourth dimension in tensor, batch size
+                results = affectnet(resemotenet)
+                # print(results)
+                pred = results[0].argmax(0)
+                facial_expressions_scores[pred] += 1    
+
+
+                #nitec (Eye contact)
+                frame = torch.permute(frame, (1, 2, 0)) # permute torch tensor to be correct shape
+                frame = frame.detach().cpu().numpy() # convert tensor into numpy array, which is what nitec accepts
+                results = nitec_pipeline.predict(frame).results
+                for result in results:
+                    totalscore += result
+                    numscores += 1
     
-    return Response([totalscore / numscores, fer2013scores])
+    return Response([totalscore / numscores, facial_expressions_scores])
 
 def extract_audio(file_path: str):
     try:

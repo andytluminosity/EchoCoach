@@ -50,7 +50,8 @@ export class Record {
                     type: 'video/webm',
                 });
                 this.downloadUrl = window.URL.createObjectURL(videoBuffer); // you can download with <a> tag
-                this.recordedVideo.nativeElement.src = this.downloadUrl;
+                console.log(this.downloadUrl);
+                // this.recordedVideo.nativeElement.src = this.downloadUrl;
 
                 const formData = new FormData();
                 formData.append('videoFile', videoBuffer);
@@ -58,7 +59,7 @@ export class Record {
                 this.api.saveRecording(formData);
 
                 this.api.sendRecording(formData).then((response) => {
-                    console.log("Sending recording for analysis...")
+                    console.log('Sending recording for analysis...');
                     console.log(response);
                 });
             };
