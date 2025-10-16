@@ -1,8 +1,9 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 
 @Component({
     selector: 'app-results',
-    imports: [],
+    imports: [CommonModule],
     templateUrl: './results.html',
     styleUrl: './results.css',
 })
@@ -27,4 +28,47 @@ export class Results {
             dateRecorded: '10/5/25',
         },
     ];
+
+    sortBy = 'nameAsc';
+
+    stringCompare = (a: string, b: string) => {
+        a = a.toUpperCase(); // ignore upper and lowercase
+        b = b.toUpperCase(); // ignore upper and lowercase
+        if (a < b) {
+            return -1;
+        }
+        if (a > b) {
+            return 1;
+        }
+        return 0;
+    };
+
+    getResults = () => {
+        let results = this.mockResults;
+        switch (this.sortBy) {
+            case 'nameAsc':
+                results.sort((a, b) => this.stringCompare(a.name, b.name));
+                break;
+            case 'nameDsc':
+                results.sort((a, b) => this.stringCompare(b.name, a.name));
+                break;
+            case 'lengthAsc':
+                results.sort((a, b) => this.stringCompare(a.length, b.length));
+                break;
+            case 'lengthDsc':
+                results.sort((a, b) => this.stringCompare(b.length, a.length));
+                break;
+            case 'dateAsc':
+                results.sort((a, b) =>
+                    this.stringCompare(a.dateRecorded, b.dateRecorded)
+                );
+                break;
+            case 'dateDsc':
+                results.sort((a, b) =>
+                    this.stringCompare(b.dateRecorded, a.dateRecorded)
+                );
+                break;
+        }
+        return results;
+    };
 }
