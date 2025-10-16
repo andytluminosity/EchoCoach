@@ -1,0 +1,32 @@
+<!-- name of recording, length, date recorded, type, delete button, heart button  -->
+
+<div class="flex flex-col mt-12 ml-40 mr-40 gap-5">
+    <h1 class="text-base-content text-4xl font-bold">Results</h1>
+    <div class="divider"></div>
+    <div class="overflow-x-auto">
+        <table class="table">
+            <!-- head -->
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Name</th>
+                    <th>Type</th>
+                    <th>Length</th>
+                    <th>Date Recorded</th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (result of mockResults; track result.name; let idx =
+                $index) {
+                <tr class="hover:bg-base-300">
+                    <th>{{ idx + 1 }}</th>
+                    <td>{{ result.name }}</td>
+                    <td>{{ result.type }}</td>
+                    <td>{{ result.length }}</td>
+                    <td>{{ result.dateRecorded }}</td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

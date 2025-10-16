@@ -4,6 +4,7 @@ import { Register } from './register/register';
 import { Login } from './login/login';
 import { Record } from './record/record';
 import { loginGuard } from './login-guard';
+import { Results } from './results/results';
 
 export const routes: Routes = [
     {
@@ -25,6 +26,12 @@ export const routes: Routes = [
         path: 'record',
         component: Record,
         title: 'Record',
+        canActivate: [loginGuard],
+    },
+    {
+        path: 'results',
+        component: Results,
+        title: 'Results',
         canActivate: [loginGuard],
     },
 ];
