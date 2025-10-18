@@ -86,4 +86,9 @@ To run the backend, navigate to the `backend` directory and run:
 python -m uvicorn echocoach.asgi:application --reload
 ```
 
+For development, ensure you have a postgres database running at localhost:5432 and run
+```bash
+python manage.py runserver
+```
+
 Note: Make sure to switch the environment to venv before running the backend by running

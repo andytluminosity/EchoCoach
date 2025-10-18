@@ -198,4 +198,4 @@ for t in range(epochs):
     test(test_dataloader, model, loss_fn)
 print("Done!")
 
-torch.save(model.state_dict(), '../../backend/pytoruch_folder/models/affectnet.pth')
+torch.save(model.state_dict(), '../backend/pytorch_folder/models/affectnet.pth')
