@@ -28,9 +28,8 @@ router.register(r'users', views.UserViewSet)
 # Wire up our API using automatic URL routing.
 # Additionally, we include login URLs for the browsable API.
 urlpatterns = [
+    path('', views.index, name="home"),
     path('admin/', admin.site.urls),
-    path('', include(router.urls)),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 
     # test view - go to http://127.0.0.1:8000/test/
 
@@ -49,4 +48,8 @@ urlpatterns = [
     path('speech-to-text/', views.speech_to_text, name="Speech-to-Text"),
 
     path('ai-feedback/', views.give_ai_feedback, name="AI-Feedback"),
+
+
+    path('', include(router.urls)),
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
