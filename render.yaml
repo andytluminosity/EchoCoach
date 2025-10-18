@@ -7,6 +7,7 @@ databases:
 services:
   - type: web
     plan: free
+    rootDir: backend
     name: echocoach
     runtime: python
     buildCommand: './build.sh'
