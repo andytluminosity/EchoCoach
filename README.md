@@ -83,7 +83,7 @@ The backend is a Django application that provides the API for the frontend. It i
 To run the backend, navigate to the `backend` directory and run:
 
 ```bash
-python manage.py runserver
+python -m uvicorn echocoach.asgi:application --reload
 ```
 
 Note: Make sure to switch the environment to venv before running the backend by running
