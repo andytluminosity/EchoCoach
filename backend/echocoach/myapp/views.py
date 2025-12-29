@@ -56,7 +56,7 @@ def login(request):
     if not user.check_password(request.data['password']):
         return Response("missing user", status=status.HTTP_404_NOT_FOUND)
     token = Token.objects.get_or_create(user=user)[0]
-    res = Response(token.key)
+    res = Response({'key': token.key, 'user': request.data['username']})
     
     return res
 

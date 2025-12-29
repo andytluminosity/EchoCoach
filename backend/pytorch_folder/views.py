@@ -36,6 +36,7 @@ import subprocess
 from .resemotenet import ResEmoteNet
 from .affectnet import AffectNet
 from .speech_emotion_cnn_model import CNNModel
+from nitec import NITEC_Classifier, visualize
 import pathlib
 CWD = pathlib.Path.cwd()
 
@@ -48,6 +49,11 @@ resemotenet.eval()
 affectnet = AffectNet(3).to('cpu')
 affectnet.load_state_dict(torch.load(CWD / "pytorch_folder"  / "models" / 'affectnet.pth', weights_only=False, map_location=torch.device('cpu')))
 affectnet.eval()
+
+nitec_pipeline = NITEC_Classifier(
+    weights= CWD / "pytorch_folder" / "models" / 'nitec_rs18_e20.pth',
+    device=torch.device('cpu') # or 'cpu'
+)
 
 test_transforms = torchvision.transforms.Compose([
     torchvision.transforms.Resize((224, 224)),
@@ -98,7 +104,13 @@ def analyze_facial(request):
                     results = affectnet(resemotenet)
                     # print(results)
                     pred = results[0].argmax(0)
-                    facial_expressions_scores[pred] += 1              
+                    facial_expressions_scores[pred] += 1
+
+                    #nitec (Eye contact)
+                    results = nitec_pipeline.predict(frame).results
+                    for result in results:
+                        totalscore += result
+                        numscores += 1              
 
             # terminate the decoder
             decoder.terminate()
@@ -121,6 +133,14 @@ def analyze_facial(request):
                 # print(results)
                 pred = results[0].argmax(0)
                 facial_expressions_scores[pred] += 1    
+
+                #nitec (Eye contact)
+                frame = torch.permute(frame, (1, 2, 0)) # permute torch tensor to be correct shape
+                frame = frame.detach().cpu().numpy() # convert tensor into numpy array, which is what nitec accepts
+                results = nitec_pipeline.predict(frame).results
+                for result in results:
+                    totalscore += result
+                    numscores += 1
     
     return Response([totalscore / numscores, facial_expressions_scores])
 

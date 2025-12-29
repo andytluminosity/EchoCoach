@@ -14,9 +14,7 @@ import { Router } from '@angular/router';
 export class Login {
     private router = inject(Router);
 
-    constructor(private api: Api) {
-        this.getAllUsers();
-    }
+    constructor(private api: Api) {}
 
     login = (f: NgForm) => {
         this.api.login(f.value).subscribe((response: any) => {
@@ -24,15 +22,6 @@ export class Login {
             localStorage.setItem('token', tokenString);
             this.router.navigate(['']);
             // window.location.reload();
-        });
-    };
-
-    users = [{ username: 'Test' }];
-
-    getAllUsers = () => {
-        this.api.getAllUsers().subscribe({
-            next: (v) => (this.users = v.results),
-            error: (e) => console.log(e),
         });
     };
 }
