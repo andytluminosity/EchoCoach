@@ -16,12 +16,13 @@ from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
 from echocoach.myapp.serializers import UserSerializer, modelResponsesSerializer, videoRecordingsSerializer
-from echocoach.myapp.models import modelResponses, videoRecordings
+from echocoach.myapp.models import modelResponses, videoRecordings, results
 
 import whisper
 import tempfile
 import os
 import openai
+import uuid
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -197,4 +198,71 @@ def give_ai_feedback(request):
 
     return Response(feedback)
 
+@api_view(['POST'])
+def save_result(request):
+    # Get an existing video recording
+    recording_obj = videoRecordings.objects.get(id=request.data.get('recording_id'))
+
+    # Create a results object
+    result = results.objects.create(
+        user=request.data.get('user'),
+        recording=recording_obj,
+        facial_analysis_result=request.data.get('facial_analysis_result'),
+        voice_analysis_result=request.data.get('voice_analysis_result'),
+        transcribed_text=request.data.get('transcribed_text'),
+        ai_feedback=request.data.get('ai_feedback'),
+        favourited=False,
+        deleted=False
+    )
+    return Response({'status': 'success', 'result_id': str(result.id)})
+
+@api_view(['GET'])
+def get_results(request):
+    # Get all results
+    results_list = results.objects.all()
     
+    # Serialize the data
+    data = []
+    user = request.GET.get('user')
+    for result in results_list:
+        if result.deleted == False and result.user == user:
+            data.append({
+                'id': str(result.id),
+                'user': result.user,
+                'facial_analysis_result': result.facial_analysis_result,
+                'voice_analysis_result': result.voice_analysis_result,
+                'transcribed_text': result.transcribed_text,
+                'ai_feedback': result.ai_feedback,
+                'favourited': result.favourited,
+                'deleted': result.deleted
+            })
+    
+    return Response({'results': data})
+
+@api_view(['DELETE'])
+def delete_result(request):
+    result_id = request.data.get('result_id')
+    try:
+        result = results.objects.get(id=result_id)
+        result.deleted = True
+        result.save()
+        return Response({'status': 'success'})
+    except results.DoesNotExist:
+        return Response({'status': 'error', 'message': 'Result not found'}, status=404)
+
+@api_view(['POST'])
+def update_favourite_result(request):
+    result_id = request.data.get('result_id')
+    print(f"Received result_id: {result_id}")
+    result_uuid = uuid.UUID(result_id)
+    favourite_status = request.data.get('favourited')
+    try:
+        print("Attempting to update favourite")
+        result = results.objects.get(id=result_uuid)
+        print(f"Found result: {result_uuid}, setting favourited to {favourite_status}")
+        result.favourited = bool(favourite_status)
+        result.save()
+        return Response({'status': 'success'})
+    except results.DoesNotExist:
+        print(f"Result not found: {result_uuid}")
+        return Response({'status': 'error', 'message': 'Result not found'}, status=404)

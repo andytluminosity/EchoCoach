@@ -102,6 +102,10 @@ export class Api {
         //     }
         // }));
 
+        console.log("Facial analysis result:", facial_analysis_result);
+        console.log("Voice analysis result:", voice_analysis_result);
+        console.log("Transcribed text:", transcribed_text);
+
         return {
             facial_analysis_result,
             voice_analysis_result,
@@ -127,5 +131,25 @@ export class Api {
                     console.log('Saved recording', res);
                 });
         });
+    }
+
+    saveResult(resultData: FormData): void {
+        this.http
+            .post(this.baseurl + '/save-result/', resultData)
+            .subscribe((res) => {
+                console.log('Saved result', res);
+            });
+    }
+    
+    getResults(user: string): Observable<any> {
+        return this.http.get(this.baseurl + '/get-results/?user=' + encodeURIComponent(user));
+    }
+
+    deleteResult(resultId: string): Observable<any> {
+        return this.http.get(this.baseurl + '/delete-result/?result_id=' + encodeURIComponent(resultId));
+    }
+    
+    updateFavouriteResult(resultId: string, favourite: boolean): Observable<any> {
+        return this.http.get(this.baseurl + '/update-favourite-result/?result_id=' + encodeURIComponent(resultId) + '&favourited=' + encodeURIComponent(favourite.toString()));
     }
 }

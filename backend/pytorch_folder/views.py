@@ -142,7 +142,7 @@ def analyze_facial(request):
                     totalscore += result
                     numscores += 1
     
-    return Response([totalscore / numscores, facial_expressions_scores])
+    return Response([totalscore, numscores, facial_expressions_scores])
 
 def extract_audio(file_path: str):
     try:

@@ -49,6 +49,10 @@ urlpatterns = [
 
     path('ai-feedback/', views.give_ai_feedback, name="AI-Feedback"),
 
+    path('get-results/', views.get_results, name="Get-Results"),
+    path('save-result/', views.save_result, name="Save-Result"),
+    path('delete-result/', views.delete_result, name="Delete-Result"),
+    path('update-favourite-result/', views.update_favourite_result, name="Update-Favourite-Result"),
 
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),

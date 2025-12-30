@@ -59,4 +59,27 @@ class videoRecordings(models.Model):
     # Recording creation date
     created_at = models.DateTimeField(auto_now_add=True)
     
+class results(models.Model):
+    # Result ID (UUID v4)
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
+    # User the result is for
+    user = models.CharField(max_length=200, default="")
+
+    # Associated recording
+    recording = models.ForeignKey(videoRecordings, on_delete=models.CASCADE)
+
+    # Result data
+    facial_analysis_result = models.JSONField(default=dict)
+    voice_analysis_result = models.JSONField(default=dict)
+    transcribed_text = models.TextField(default="")
+    ai_feedback = models.TextField(default="")
+
+    # Deleted flag
+    deleted = models.BooleanField(default=False)
+
+    # Favourited flag
+    favourited = models.BooleanField(default=False)
+
+    # Result creation date
+    created_at = models.DateTimeField(auto_now_add=True)
