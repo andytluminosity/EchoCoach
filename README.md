@@ -106,7 +106,13 @@ https://www.jetbrains.com/datagrip/download
 - Click the menu (three horizontal lines on top of one another)
 - Click Data Sources
 - Click + and choose PostgreSQL
-- Fill in your user and password (the user is typically postgres and the password is the one you set during postgres installation)
+- Under `General`
+    - Enter `localhost` and `5432` for Host and Port respectively
+    - Fill in your user and password (the user is typically postgres and the password is the one you set during postgres installation)
+    - Enter `echocoach` for the Database
+- Under `Schemas`
+    - Ensure `echocoach` is ticked
+- Click `Apply`
 - Click test connection on the bottom. If everything works, it should return a good result
 - Navigate the backend directory
 - Verify that the connection works with 
