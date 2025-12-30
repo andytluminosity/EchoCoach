@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { firstValueFrom, Observable } from 'rxjs';
 import { User } from '../types/user';
 import { v4 as uuidv4 } from 'uuid';
+import { environment } from './environments/environment';
 
 interface AnalyzeVoiceResponse {
     emotion: string;
@@ -21,7 +22,7 @@ interface AnalyzeVoiceResponse {
     providedIn: 'root',
 })
 export class Api {
-    baseurl = 'http://127.0.0.1:8000';
+    baseurl = environment.baseUrl;
     httpHeaders = new HttpHeaders({ 'Content-Type': 'application/json' });
 
     private http = inject(HttpClient);

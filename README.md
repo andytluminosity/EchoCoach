@@ -91,4 +91,30 @@ For development, ensure you have a postgres database running at localhost:5432 a
 python manage.py runserver
 ```
 
-Note: Make sure to switch the environment to venv before running the backend by running
+Create a .env.local and define the following:
+```bash
+DATABASE_URL=postgresql://postgres:SECRET_POSTGRES_PASSWORD@localhost:5432/echocoach
+```
+replacing SECRET_POSTGRES_PASSWORD with your superuser postgres password
+
+To have a postgres database running at localhost:5432, install Jetbrains DataGrip: 
+https://www.jetbrains.com/datagrip/download
+
+- Click the menu (three horizontal lines on top of one another)
+- Click Data Sources
+- Click + and choose PostgreSQL
+- Fill in your user and password (the user is typically postgres and the password is the one you set during postgres installation)
+- Click test connection on the bottom. If everything works, it should return a good result
+- Navigate the backend directory
+- Verify that the connection works with 
+```bash
+python manage.py runserver
+```
+- Finally, run the following to set up the DB configurations locally
+```bash
+python manage.py makemigrations
+python manage.py migrate
+```
+
+If you need to install Postgres:
+https://www.enterprisedb.com/postgresql-tutorial-resources-training-1?uuid=867f9c7f-7be7-44ed-b03f-103a0a430d51&campaignId=postgres_rc_18

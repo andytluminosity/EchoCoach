@@ -5,3 +5,4 @@ __pycache__
 /backend/echocoach/__pycache__
 /backend/recordings
 /env/
+backend/.env.local
