@@ -115,6 +115,7 @@ python manage.py runserver
 python manage.py makemigrations
 python manage.py migrate
 ```
+## Note: For development, everytime you run the backend, you must have DataGrip running
 
 If you need to install Postgres:
 https://www.enterprisedb.com/postgresql-tutorial-resources-training-1?uuid=867f9c7f-7be7-44ed-b03f-103a0a430d51&campaignId=postgres_rc_18
