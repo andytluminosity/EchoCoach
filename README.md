@@ -91,6 +91,9 @@ For development, ensure you have a postgres database running at localhost:5432 a
 python manage.py runserver
 ```
 
+Install Postgres if you haven't already:
+https://www.enterprisedb.com/postgresql-tutorial-resources-training-1?uuid=867f9c7f-7be7-44ed-b03f-103a0a430d51&campaignId=postgres_rc_18
+
 Create a .env.local and define the following:
 ```bash
 DATABASE_URL=postgresql://postgres:SECRET_POSTGRES_PASSWORD@localhost:5432/echocoach
@@ -116,6 +119,3 @@ python manage.py makemigrations
 python manage.py migrate
 ```
 ## Note: For development, everytime you run the backend, you must have DataGrip running
-
-If you need to install Postgres:
-https://www.enterprisedb.com/postgresql-tutorial-resources-training-1?uuid=867f9c7f-7be7-44ed-b03f-103a0a430d51&campaignId=postgres_rc_18
