@@ -97,6 +97,11 @@ DATABASES = {
         default=os.getenv('DATABASE_URL', 'postgresql://postgres:postgres@localhost:5432/echocoach'),
         conn_max_age=600
     )
+
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.sqlite3',
+    #     'NAME': BASE_DIR / 'db.sqlite3',
+    # }
 }
 
 

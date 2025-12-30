@@ -3,6 +3,7 @@ import { RouterModule, RouterOutlet } from '@angular/router';
 import { Api } from './api';
 import { Home } from './home/home';
 import { CommonModule } from '@angular/common';
+import { ThemeService } from './themeService';
 
 @Component({
     selector: 'app-root',
@@ -16,7 +17,7 @@ export class App {
 
     // isLoggedIn = false;
 
-    constructor(private api: Api) {}
+    constructor(private api: Api, protected themeService: ThemeService) {}
 
     isLoggedIn = () => this.api.isLoggedIn();
 

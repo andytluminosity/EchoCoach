@@ -104,7 +104,7 @@
                     </svg>
                 </div>
                 <ul
-                    tabindex="0"
+                    tabindex="-1"
                     class="dropdown-content bg-base-300 rounded-box z-1 w-52 p-2 shadow-2xl"
                 >
                     <li>
@@ -114,6 +114,8 @@
                             class="theme-controller w-full btn btn-sm btn-ghost justify-start"
                             aria-label="Light"
                             value="light"
+                            [checked]="themeService.currentTheme() == 'light'"
+                            (click)="themeService.setTheme('light')"
                         />
                     </li>
                     <li>
@@ -123,6 +125,8 @@
                             class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
                             aria-label="Dark"
                             value="dark"
+                            [checked]="themeService.currentTheme() == 'dark'"
+                            (click)="themeService.setTheme('dark')"
                         />
                     </li>
                     <li>
@@ -132,6 +136,8 @@
                             class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
                             aria-label="Black"
                             value="black"
+                            [checked]="themeService.currentTheme() == 'black'"
+                            (click)="themeService.setTheme('black')"
                         />
                     </li>
                     <li>
@@ -141,6 +147,8 @@
                             class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
                             aria-label="Synthwave"
                             value="synthwave"
+                            [checked]="themeService.currentTheme() == 'synthwave'"
+                            (click)="themeService.setTheme('synthwave')"
                         />
                     </li>
                     <li>
@@ -150,6 +158,8 @@
                             class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
                             aria-label="Caramel Latte"
                             value="caramellatte"
+                            [checked]="themeService.currentTheme() == 'caramellatte'"
+                            (click)="themeService.setTheme('caramellatte')"
                         />
                     </li>
                     <li>
@@ -159,6 +169,8 @@
                             class="theme-controller w-full btn btn-sm btn-block btn-ghost justify-start"
                             aria-label="Retro"
                             value="retro"
+                            [checked]="themeService.currentTheme() == 'retro'"
+                            (click)="themeService.setTheme('retro')"
                         />
                     </li>
                 </ul>

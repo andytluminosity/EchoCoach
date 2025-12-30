@@ -5,6 +5,7 @@ import { Login } from './login/login';
 import { Record } from './record/record';
 import { loginGuard } from './login-guard';
 import { Results } from './results/results';
+import { Feedback } from './feedback/feedback';
 
 export const routes: Routes = [
     {
@@ -32,6 +33,12 @@ export const routes: Routes = [
         path: 'results',
         component: Results,
         title: 'Results',
+        canActivate: [loginGuard],
+    },
+    {
+        path: 'results/feedback',
+        component: Feedback,
+        title: 'Feedback',
         canActivate: [loginGuard],
     },
 ];
