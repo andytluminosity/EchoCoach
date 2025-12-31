@@ -1,14 +1,17 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { Api } from '../api';
 
 @Component({
     selector: 'app-results',
     imports: [CommonModule, RouterModule],
     templateUrl: './results.html',
     styleUrl: './results.css',
+    providers: [Api],
 })
 export class Results {
+    constructor(private api: Api) {}
     mockResults = [
         {
             name: 'Recording One',

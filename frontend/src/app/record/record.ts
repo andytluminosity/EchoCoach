@@ -10,8 +10,6 @@ import { Api } from '../api';
 })
 export class Record {
     @ViewChild('video', { static: true }) public video!: ElementRef;
-    @ViewChild('recordedVideo', { static: true })
-    public recordedVideo!: ElementRef;
 
     stream?: MediaStream;
     mediaRecorder?: MediaRecorder;
@@ -19,6 +17,15 @@ export class Record {
     downloadUrl = '';
 
     constructor(private api: Api) {}
+
+    ngOnInit() {
+        const dialog = document.getElementById(
+            'confirm_modal'
+        ) as HTMLDialogElement;
+        dialog.addEventListener('cancel', (event) => {
+            this.deleteRecording();
+        });
+    }
 
     ngAfterViewInit() {
         navigator.mediaDevices
@@ -45,24 +52,6 @@ export class Record {
                     this.recording.push(event.data);
                 }
             };
-            this.mediaRecorder.onstop = (event: Event) => {
-                const videoBuffer = new Blob(this.recording, {
-                    type: 'video/webm',
-                });
-                this.downloadUrl = window.URL.createObjectURL(videoBuffer); // you can download with <a> tag
-                console.log(this.downloadUrl);
-                // this.recordedVideo.nativeElement.src = this.downloadUrl;
-
-                const formData = new FormData();
-                formData.append('videoFile', videoBuffer);
-
-                this.api.saveRecording(formData);
-
-                this.api.sendRecording(formData).then((response) => {
-                    console.log('Sending recording for analysis...');
-                    console.log(response);
-                });
-            };
         } catch (err) {
             console.log(err);
         }
@@ -78,5 +67,46 @@ export class Record {
         if (this.mediaRecorder) {
             this.mediaRecorder.pause();
         }
+    }
+
+    saveRecording() {
+        const inputElement = document.getElementById(
+            'recordingName'
+        ) as HTMLInputElement;
+
+        const recordingName = inputElement.value;
+
+        inputElement.value = '';
+
+        const videoBuffer = new Blob(this.recording, {
+            type: 'video/webm',
+        });
+        this.downloadUrl = window.URL.createObjectURL(videoBuffer); // you can download with <a> tag
+        console.log(this.downloadUrl);
+
+        const formData = new FormData();
+        formData.append('videoFile', videoBuffer);
+
+        // also pass through recordingName
+        this.api.saveRecording(formData);
+
+        this.api.sendRecording(formData).then((response) => {
+            console.log('Sending recording for analysis...');
+            console.log(response);
+        });
+
+        delete this.mediaRecorder;
+
+        // redirect to feedback page
+    }
+
+    deleteRecording() {
+        const inputElement = document.getElementById(
+            'recordingName'
+        ) as HTMLInputElement;
+
+        inputElement.value = '';
+
+        delete this.mediaRecorder;
     }
 }

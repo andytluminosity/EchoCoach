@@ -16,6 +16,29 @@
         </div>
     </div>
 </dialog>
+<dialog id="confirm_modal" class="modal">
+    <div class="modal-box">
+        <h3 class="text-lg font-bold mb-6">Save Recording</h3>
+        <input
+            type="text"
+            id="recordingName"
+            placeholder="Name of recording"
+            class="input w-full"
+        />
+        <div class="modal-action justify-between">
+            <form method="dialog">
+                <button class="btn btn-error" (click)="deleteRecording()">
+                    Delete
+                </button>
+            </form>
+            <form method="dialog">
+                <button class="btn btn-success" (click)="saveRecording()">
+                    Save
+                </button>
+            </form>
+        </div>
+    </div>
+</dialog>
 <div class="flex flex-col items-center mt-4 gap-5">
     <div class="flex items-center-safe justify-center">
         <h1 class="label text-base-content text-4xl font-bold mr-1">Record</h1>
@@ -91,6 +114,7 @@
         <button
             class="btn btn-error"
             (click)="stopRecording()"
+            onclick="confirm_modal.showModal()"
             [disabled]="!this.mediaRecorder"
         >
             <svg
@@ -111,12 +135,4 @@
             Stop Recording
         </button>
     </div>
-    <!-- <video
-        #recordedVideo
-        id="video"
-        width="640"
-        height="480"
-        autoplay="true"
-        controls
-    ></video> -->
 </div>
