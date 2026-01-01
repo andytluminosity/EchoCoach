@@ -110,16 +110,17 @@ export class Api {
             facial_analysis_result,
             voice_analysis_result,
             transcribed_text,
-            // ai_feedback
+            ai_feedback: "Temporary AI Feedback"
         };
     }
 
-    saveRecording(recording: FormData): void {
+    saveRecording(recording: FormData): string {
+        const recordingId = uuidv4();
         this.getUserData().subscribe((user) => {
             // Set or override ID
             !recording.has('id')
-                ? recording.append('id', uuidv4())
-                : recording.set('id', uuidv4());
+                ? recording.append('id', recordingId)
+                : recording.set('id', recordingId);
             // Set or override user
             !recording.has('user')
                 ? recording.append('user', user.username)
@@ -131,25 +132,46 @@ export class Api {
                     console.log('Saved recording', res);
                 });
         });
+        return recordingId;
+    }
+
+    renameRecording(request: FormData): void {
+        const data = new FormData();
+        data.append('id', request.get('id') as string);
+        data.append('newName', request.get('name') as string);
+        
+        this.http
+            .post(this.baseurl + '/recordings/rename/', data)
+            .subscribe((res) => {
+                console.log('Renamed recording', res);
+            });
     }
 
     saveResult(resultData: FormData): void {
-        this.http
-            .post(this.baseurl + '/save-result/', resultData)
-            .subscribe((res) => {
-                console.log('Saved result', res);
-            });
+        this.getUserData().subscribe((user) => {
+            // Set or override user
+            !resultData.has('user')
+                ? resultData.append('user', user.username)
+                : resultData.set('user', user.username);
+
+            this.http
+                .post(this.baseurl + '/result/', resultData)
+                .subscribe((res) => {
+                    console.log('Saved result', res);
+                });
+        });
     }
     
-    getResults(user: string): Observable<any> {
-        return this.http.get(this.baseurl + '/get-results/?user=' + encodeURIComponent(user));
+    getResults(request: FormData): Observable<any> {
+        const user = request.get('user') as string;
+        return this.http.get(this.baseurl + '/results/?user=' + encodeURIComponent(user));
     }
 
     deleteResult(resultId: string): Observable<any> {
-        return this.http.get(this.baseurl + '/delete-result/?result_id=' + encodeURIComponent(resultId));
+        return this.http.delete(this.baseurl + '/results/?result_id=' + encodeURIComponent(resultId));
     }
     
     updateFavouriteResult(resultId: string, favourite: boolean): Observable<any> {
-        return this.http.get(this.baseurl + '/update-favourite-result/?result_id=' + encodeURIComponent(resultId) + '&favourited=' + encodeURIComponent(favourite.toString()));
+        return this.http.post(this.baseurl + '/results/', { result_id: resultId, favourited: favourite });
     }
 }

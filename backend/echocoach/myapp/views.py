@@ -15,8 +15,8 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
-from echocoach.myapp.serializers import UserSerializer, modelResponsesSerializer, videoRecordingsSerializer
-from echocoach.myapp.models import modelResponses, videoRecordings, results
+from echocoach.myapp.serializers import UserSerializer, videoRecordingsSerializer
+from echocoach.myapp.models import videoRecordings, results
 
 import whisper
 import tempfile
@@ -67,59 +67,74 @@ def getUserData(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
-@api_view(['POST', 'GET'])
-def addAndGetModelResponses(request):
-    if request.method == 'POST':
-        # Create model response
-        serializer = modelResponsesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+# @api_view(['POST', 'GET'])
+# def addAndGetModelResponses(request):
+#     if request.method == 'POST':
+#         # Create model response
+#         serializer = modelResponsesSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    else:
-        # Get model response
-        user = request.query_params.get('user', None)
-        numResponses = request.query_params.get('numResponses')
+#     else:
+#         # Get model response
+#         user = request.query_params.get('user', None)
+#         numResponses = request.query_params.get('numResponses')
 
-        results = modelResponses.objects.filter(user=user).order_by('-created_at')
+#         results = modelResponses.objects.filter(user=user).order_by('-created_at')
 
-        if numResponses:
-            results = results[:int(numResponses)]
+#         if numResponses:
+#             results = results[:int(numResponses)]
 
-        serializer = modelResponsesSerializer(results, many=True)
+#         serializer = modelResponsesSerializer(results, many=True)
+#         return Response(serializer.data)
+
+def save_recording(request):
+    recording_data = {
+        'id': request.data.get('id'),
+        'name': "New Recording",
+        'user': request.data.get('user'),
+        'recording': request.FILES.get('videoFile'),
+    }
+
+    serializer = videoRecordingsSerializer(data=recording_data)
+    if serializer.is_valid():
+        serializer.save()
         return Response(serializer.data)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+def get_recording(request):
+    user = request.query_params.get('user', None)
+    numRecordings = request.query_params.get('numRecordings')
+
+    results = videoRecordings.objects.filter(user=user).order_by('-created_at')
+
+    if numRecordings:
+        results = results[:int(numRecordings)]
+
+    serializer = videoRecordingsSerializer(results, many=True)
+    return Response(serializer.data)
 
 @api_view(['POST', 'GET'])
-def storeAndGetRecordings(request):
+def save_get_recordings(request):
     if request.method == 'POST':
-        # Store recording
-        video_file = request.FILES.get('videoFile')
-
-        # Get the other fields from request.data
-        recording_data = {
-            'id': request.data.get('id'),
-            'user': request.data.get('user'),
-            'recording': video_file,
-        }
-
-        serializer = videoRecordingsSerializer(data=recording_data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return save_recording(request)
     else:
-        # Get recordings
-        user = request.query_params.get('user', None)
-        numRecordings = request.query_params.get('numRecordings')
+        return get_recording(request)
 
-        results = videoRecordings.objects.filter(user=user).order_by('-created_at')
-
-        if numRecordings:
-            results = results[:int(numRecordings)]
-
-        serializer = videoRecordingsSerializer(results, many=True)
-        return Response(serializer.data)
+@api_view(['POST'])
+def rename_recording(request):
+    recordingId = request.data.get('id')
+    newName = request.data.get('newName')
+    
+    try:
+        recording = videoRecordings.objects.get(id=recordingId)
+        recording.name = newName
+        recording.save()
+        return Response({'message': 'Recording renamed successfully'}, status=status.HTTP_200_OK)
+    except videoRecordings.DoesNotExist:
+        return Response({'error': 'Recording not found'}, status=status.HTTP_404_NOT_FOUND)
 
 # Load the model (small/medium/large depending on accuracy vs speed)
 model = whisper.load_model("base.en")
@@ -207,8 +222,8 @@ def save_result(request):
     result = results.objects.create(
         user=request.data.get('user'),
         recording=recording_obj,
-        facial_analysis_result=request.data.get('facial_analysis_result'),
-        voice_analysis_result=request.data.get('voice_analysis_result'),
+        facial_analysis_result=request.data.get('facial_analysis_result', {}),
+        voice_analysis_result=request.data.get('voice_analysis_result', {}),
         transcribed_text=request.data.get('transcribed_text'),
         ai_feedback=request.data.get('ai_feedback'),
         favourited=False,
@@ -249,6 +264,16 @@ def delete_result(request):
         return Response({'status': 'success'})
     except results.DoesNotExist:
         return Response({'status': 'error', 'message': 'Result not found'}, status=404)
+
+@api_view(['GET', 'POST', 'DELETE'])
+def save_get_delete_results(request):
+    # This function will handle GET, POST, and DELETE requests
+    if request.method == 'GET':
+        return get_results(request)
+    elif request.method == 'POST':
+        return save_result(request)
+    elif request.method == 'DELETE':
+        return delete_result(request)
 
 @api_view(['POST'])
 def update_favourite_result(request):

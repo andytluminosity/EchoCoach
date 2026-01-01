@@ -124,4 +124,3 @@ python manage.py runserver
 python manage.py makemigrations
 python manage.py migrate
 ```
-## Note: For development, everytime you run the backend, you must have DataGrip running

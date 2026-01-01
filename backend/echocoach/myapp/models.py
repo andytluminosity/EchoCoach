@@ -23,25 +23,25 @@ class Reply(models.Model):
 #   Run 'python manage.py makemigrations myapp' to tell Django that our models have been updated.
 #   Run 'python manage.py migrate' to create model tables in database.
 
-class modelResponses(models.Model):
-    # Response ID (UUID v4)
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+# class modelResponses(models.Model):
+#     # Response ID (UUID v4)
+#     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
-    # User the response is for
-    user = models.CharField(max_length=200, default="")
+#     # User the response is for
+#     user = models.CharField(max_length=200, default="")
 
-    # Feedback for the interview
-    feedback_text = models.TextField(default="")
+#     # Feedback for the interview
+#     feedback_text = models.TextField(default="")
 
-    # Overall emotion of the user 
-    speech_emotion = models.CharField(max_length=200, default="")
+#     # Overall emotion of the user 
+#     speech_emotion = models.CharField(max_length=200, default="")
 
-    # Facial expressions of the user over time
-    #   Make sure we feed in {"expression": str, "startTime": int}
-    facial_expressions = models.JSONField(default=list)
+#     # Facial expressions of the user over time
+#     #   Make sure we feed in {"expression": str, "startTime": int}
+#     facial_expressions = models.JSONField(default=list)
 
-    # Response creation date
-    created_at = models.DateTimeField(auto_now_add=True)
+#     # Response creation date
+#     created_at = models.DateTimeField(auto_now_add=True)
 
 def get_video_upload_path(instance, filename):
     return os.path.join('recordings', instance.user, str(instance.id) + '.webm')
@@ -49,6 +49,9 @@ def get_video_upload_path(instance, filename):
 class videoRecordings(models.Model):
     # Recording ID (UUID v4)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # Name of the recording
+    name = models.CharField(max_length=200, default="")
 
     # User the recording is for
     user = models.CharField(max_length=200, default="")

@@ -88,11 +88,14 @@ export class Record {
         formData.append('videoFile', videoBuffer);
 
         // also pass through recordingName
-        this.api.saveRecording(formData);
+        const recordingId = this.api.saveRecording(formData);
+        console.log('Recording saved with ID:', recordingId);
 
+        // Send for recording analysis
         this.api.sendRecording(formData).then((response) => {
-            console.log('Sending recording for analysis...');
-            console.log(response);
+            console.log('Recording analyzed.');
+            console.log('Analysis:', response);
+            this.api.saveResult({...response, recording_id: recordingId});
         });
 
         delete this.mediaRecorder;

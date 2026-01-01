@@ -41,18 +41,16 @@ urlpatterns = [
     path('analyze-facial/', pytorchviews.analyze_facial, name="Analyze-Facial"),
     path('analyze-voice/', pytorchviews.analyze_voice, name="Analyze-Voice"),
 
-    path('model-response/', views.addAndGetModelResponses, name="Model-Response"),
+    # path('model-response/', views.addAndGetModelResponses, name="Model-Response"),
 
-    path('recordings/', views.storeAndGetRecordings, name="Recordings"),
+    path('recordings/', views.save_get_recordings, name="Recordings"),
 
     path('speech-to-text/', views.speech_to_text, name="Speech-to-Text"),
 
     path('ai-feedback/', views.give_ai_feedback, name="AI-Feedback"),
 
-    path('get-results/', views.get_results, name="Get-Results"),
-    path('save-result/', views.save_result, name="Save-Result"),
-    path('delete-result/', views.delete_result, name="Delete-Result"),
-    path('update-favourite-result/', views.update_favourite_result, name="Update-Favourite-Result"),
+    path('results/', views.save_get_delete_results, name="Save-Get-Delete-Results"),
+    path('results/update-favourite/', views.update_favourite_result, name="Update-Favourite-Result"),
 
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
