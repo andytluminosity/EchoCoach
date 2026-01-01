@@ -15,7 +15,7 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
-from echocoach.myapp.serializers import UserSerializer, videoRecordingsSerializer
+from echocoach.myapp.serializers import UserSerializer
 from echocoach.myapp.models import videoRecordings, results
 
 import whisper
@@ -91,18 +91,14 @@ def getUserData(request):
 #         return Response(serializer.data)
 
 def save_recording(request):
-    recording_data = {
-        'id': request.data.get('id'),
-        'name': "New Recording",
-        'user': request.data.get('user'),
-        'recording': request.FILES.get('videoFile'),
-    }
+    recording = videoRecordings.objects.create(
+        id=request.data.get('id'),
+        name="New Recording",
+        user=request.data.get('user'),
+        recording=request.FILES.get('videoFile'),
+    )
 
-    serializer = videoRecordingsSerializer(data=recording_data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response({'status': 'success', 'recording_id': str(recording.id)})
 
 def get_recording(request):
     user = request.query_params.get('user', None)
@@ -213,9 +209,9 @@ def give_ai_feedback(request):
 
     return Response(feedback)
 
-@api_view(['POST'])
 def save_result(request):
-    # Get an existing video recording
+    # Get existing video recording
+    print("Recording ID:", request.data.get('recording_id'))
     recording_obj = videoRecordings.objects.get(id=request.data.get('recording_id'))
 
     # Create a results object
@@ -231,7 +227,6 @@ def save_result(request):
     )
     return Response({'status': 'success', 'result_id': str(result.id)})
 
-@api_view(['GET'])
 def get_results(request):
     # Get all results
     results_list = results.objects.all()
@@ -254,7 +249,6 @@ def get_results(request):
     
     return Response({'results': data})
 
-@api_view(['DELETE'])
 def delete_result(request):
     result_id = request.data.get('result_id')
     try:

@@ -155,7 +155,7 @@ export class Api {
                 : resultData.set('user', user.username);
 
             this.http
-                .post(this.baseurl + '/result/', resultData)
+                .post(this.baseurl + '/results/', resultData)
                 .subscribe((res) => {
                     console.log('Saved result', res);
                 });

@@ -95,7 +95,15 @@ export class Record {
         this.api.sendRecording(formData).then((response) => {
             console.log('Recording analyzed.');
             console.log('Analysis:', response);
-            this.api.saveResult({...response, recording_id: recordingId});
+
+            const resultData = new FormData();
+            resultData.set('recording_id', recordingId);
+
+            Object.entries(response).forEach(([key, value]) => {
+                resultData.set(key, JSON.stringify(value));
+            });
+
+            this.api.saveResult(resultData);
         });
 
         delete this.mediaRecorder;
