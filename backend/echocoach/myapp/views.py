@@ -166,7 +166,6 @@ def get_results(request):
     # Serialize the data
     data = []
     user = request.GET.get('user')
-    orderBy = request.GET.get('orderBy')
     for result in results_list:
         if result.deleted == False and result.user == user:
             data.append({
@@ -183,19 +182,6 @@ def get_results(request):
                 'deleted': result.deleted,
                 'dateRecorded': result.created_at.strftime("%b %d, %Y").replace(" 0", " ")
             })
-    
-    if orderBy == "nameAsc":
-        data.sort(key=lambda x: x['name'])
-    elif orderBy == "nameDsc":
-        data.sort(key=lambda x:x['name'], reverse=True)
-    # elif orderBy == "lengthAsc":
-    #     data.sort(key=lambda x:x['length'])
-    # elif orderBy == "lengthDsc":
-    #     data.sort(key=lambda x:x['length'], reverse=True)
-    elif orderBy == "dateAsc":
-        data.sort(key=lambda x:x['dateRecorded'])
-    elif orderBy == "dateDsc":
-        data.sort(key=lambda x:x['dateRecorded'], reverse=True)
 
     return Response({'results': data})
 

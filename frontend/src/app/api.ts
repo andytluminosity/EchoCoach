@@ -129,9 +129,9 @@ export class Api {
         });
     }
     
-    getResults(request: FormData, orderBy: string): Observable<any> {
+    getResults(request: FormData): Observable<any> {
         const user = request.get('user') as string;
-        return this.http.get(this.baseurl + '/results/?user=' + encodeURIComponent(user) + '&orderBy=' + encodeURIComponent(orderBy));
+        return this.http.get(this.baseurl + '/results/?user=' + encodeURIComponent(user));
     }
 
     deleteResult(resultId: string): Observable<any> {

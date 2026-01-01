@@ -14,7 +14,7 @@
                         <button
                             class="btn btn-circle btn-xs btn-ghost"
                             [ngClass]="{ 'btn-active': sortBy == 'nameAsc' || sortBy == 'nameDsc'}"
-                            (click)="sortBy = sortBy == 'nameDsc' ? 'nameAsc' : 'nameDsc'"
+                            (click)="toggleSort('name')"
                         >
                             @if (sortBy == 'nameAsc') {
                             <svg
@@ -55,7 +55,7 @@
                         <button
                             class="btn btn-circle btn-xs btn-ghost"
                             [ngClass]="{ 'btn-active': sortBy == 'lengthAsc' || sortBy == 'lengthDsc'}"
-                            (click)="sortBy = sortBy == 'lengthDsc' ? 'lengthAsc' : 'lengthDsc'"
+                            (click)="toggleSort('length')"
                         >
                             @if (sortBy == 'lengthAsc') {
                             <svg
@@ -95,7 +95,7 @@
                         <button
                             class="btn btn-circle btn-xs btn-ghost"
                             [ngClass]="{ 'btn-active': sortBy == 'dateAsc' || sortBy == 'dateDsc'}"
-                            (click)="sortBy = sortBy == 'dateDsc' ? 'dateAsc' : 'dateDsc'"
+                            (click)="toggleSort('date')"
                         >
                             @if (sortBy == 'dateAsc') {
                             <svg
