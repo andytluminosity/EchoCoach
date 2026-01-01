@@ -42,6 +42,7 @@ urlpatterns = [
     path('analyze-voice/', pytorchviews.analyze_voice, name="Analyze-Voice"),
 
     path('recordings/', views.save_get_recordings, name="Recordings"),
+    path('recordings/rename/', views.rename_recording, name="Rename-Recording"),
 
     path('speech-to-text/', views.speech_to_text, name="Speech-to-Text"),
 
