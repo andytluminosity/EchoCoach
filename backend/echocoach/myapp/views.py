@@ -148,6 +148,7 @@ def save_result(request):
     result = results.objects.create(
         user=request.data.get('user'),
         name=request.data.get('name') or "Untitled Recording",
+        type=request.data.get('type') or "Interview",
         recording=request.FILES.get('videoFile'),
         facial_analysis_result=request.data.get('facial_analysis_result', {}),
         voice_analysis_result=request.data.get('voice_analysis_result', {}),
@@ -165,19 +166,37 @@ def get_results(request):
     # Serialize the data
     data = []
     user = request.GET.get('user')
+    orderBy = request.GET.get('orderBy')
     for result in results_list:
         if result.deleted == False and result.user == user:
             data.append({
                 'id': str(result.id),
                 'user': result.user,
+                'name': result.name,
+                'type': result.type,
+                'length': 123,
                 'facial_analysis_result': result.facial_analysis_result,
                 'voice_analysis_result': result.voice_analysis_result,
                 'transcribed_text': result.transcribed_text,
                 'ai_feedback': result.ai_feedback,
                 'favourited': result.favourited,
-                'deleted': result.deleted
+                'deleted': result.deleted,
+                'dateRecorded': result.created_at.strftime("%b %d, %Y").replace(" 0", " ")
             })
     
+    if orderBy == "nameAsc":
+        data.sort(key=lambda x: x['name'])
+    elif orderBy == "nameDsc":
+        data.sort(key=lambda x:x['name'], reverse=True)
+    # elif orderBy == "lengthAsc":
+    #     data.sort(key=lambda x:x['length'])
+    # elif orderBy == "lengthDsc":
+    #     data.sort(key=lambda x:x['length'], reverse=True)
+    elif orderBy == "dateAsc":
+        data.sort(key=lambda x:x['dateRecorded'])
+    elif orderBy == "dateDsc":
+        data.sort(key=lambda x:x['dateRecorded'], reverse=True)
+
     return Response({'results': data})
 
 def delete_result(request):

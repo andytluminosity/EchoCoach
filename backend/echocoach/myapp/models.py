@@ -31,10 +31,13 @@ class results(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # User the result is for
-    user = models.CharField(max_length=200, default="")
+    user = models.CharField(max_length=200)
 
     # Name of the result
-    name = models.CharField(max_length=200, default="")
+    name = models.CharField(max_length=200)
+
+    # Type of the result
+    type = models.CharField(max_length=200)
 
     # Recording file
     recording = models.FileField(upload_to=get_video_upload_path)

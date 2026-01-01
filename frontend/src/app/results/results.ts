@@ -2,6 +2,22 @@ import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Api } from '../api';
+import { firstValueFrom } from 'rxjs';
+
+interface Result {
+    id: string;
+    user: string;
+    name: string;
+    type: string;
+    facial_analysis_result: string;
+    voice_analysis_result: string;
+    transcribed_text: string;
+    ai_feedback: string;
+    favourited: boolean;
+    deleted: boolean;
+    length: string;
+    dateRecorded: string;
+}
 
 @Component({
     selector: 'app-results',
@@ -10,28 +26,17 @@ import { Api } from '../api';
     styleUrl: './results.css',
     providers: [Api],
 })
+
 export class Results {
     constructor(private api: Api) {}
-    mockResults = [
-        {
-            name: 'Recording One',
-            type: 'Interview',
-            length: '3:02',
-            dateRecorded: '10/1/25',
-        },
-        {
-            name: 'Recording Two',
-            type: 'Interview',
-            length: '5:34',
-            dateRecorded: '10/3/25',
-        },
-        {
-            name: 'Recording Three',
-            type: 'Interview',
-            length: '4:12',
-            dateRecorded: '10/5/25',
-        },
-    ];
+    results: Result[] = [];
+
+    async ngOnInit() {
+        const data = await this.getResults()
+        this.results = data.results;
+        this.results = Array.isArray(this.results) ? this.results : [];
+        console.log("Received results: ", this.results);
+    }
 
     sortBy = 'nameAsc';
 
@@ -47,32 +52,11 @@ export class Results {
         return 0;
     };
 
-    getResults = () => {
-        let results = this.mockResults;
-        switch (this.sortBy) {
-            case 'nameAsc':
-                results.sort((a, b) => this.stringCompare(a.name, b.name));
-                break;
-            case 'nameDsc':
-                results.sort((a, b) => this.stringCompare(b.name, a.name));
-                break;
-            case 'lengthAsc':
-                results.sort((a, b) => this.stringCompare(a.length, b.length));
-                break;
-            case 'lengthDsc':
-                results.sort((a, b) => this.stringCompare(b.length, a.length));
-                break;
-            case 'dateAsc':
-                results.sort((a, b) =>
-                    this.stringCompare(a.dateRecorded, b.dateRecorded)
-                );
-                break;
-            case 'dateDsc':
-                results.sort((a, b) =>
-                    this.stringCompare(b.dateRecorded, a.dateRecorded)
-                );
-                break;
-        }
-        return results;
+    getResults = (): Promise<{results: Result[]}> => {
+        console.log("Getting results for user: " + this.api.getCurrentUsername());
+        const userForm = new FormData();
+        userForm.append('user', this.api.getCurrentUsername());
+
+        return firstValueFrom(this.api.getResults(userForm, this.sortBy));
     };
 }
