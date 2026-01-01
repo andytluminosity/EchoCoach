@@ -67,29 +67,6 @@ def getUserData(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
-# @api_view(['POST', 'GET'])
-# def addAndGetModelResponses(request):
-#     if request.method == 'POST':
-#         # Create model response
-#         serializer = modelResponsesSerializer(data=request.data)
-#         if serializer.is_valid():
-#             serializer.save()
-#             return Response(serializer.data)
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-#     else:
-#         # Get model response
-#         user = request.query_params.get('user', None)
-#         numResponses = request.query_params.get('numResponses')
-
-#         results = modelResponses.objects.filter(user=user).order_by('-created_at')
-
-#         if numResponses:
-#             results = results[:int(numResponses)]
-
-#         serializer = modelResponsesSerializer(results, many=True)
-#         return Response(serializer.data)
-
 def save_recording(request):
     recording = videoRecordings.objects.create(
         id=request.data.get('id'),

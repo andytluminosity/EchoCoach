@@ -8,16 +8,3 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = User 
         fields = ['id', 'username', 'password', 'email']
-
-# from .models import videoRecordings
-
-# class modelResponsesSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = modelResponses
-#         fields = ['id', 'user', 'feedback_text', 'speech_emotion', 'facial_expressions', 'created_at']
-
-
-# class videoRecordingsSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = videoRecordings
-#         fields = ['id', 'user', 'recording', 'created_at'] 
