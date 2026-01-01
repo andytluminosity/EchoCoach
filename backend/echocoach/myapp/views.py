@@ -68,12 +68,14 @@ def getUserData(request):
     return Response(serializer.data)
 
 def save_recording(request):
+    print("name: ", request.data.get('name'))
     recording = videoRecordings.objects.create(
         id=request.data.get('id'),
-        name="New Recording",
+        name=request.data.get('name') or "Untitled Recording",
         user=request.data.get('user'),
         recording=request.FILES.get('videoFile'),
     )
+    print("Saved name:", recording.name)
 
     return Response({'status': 'success', 'recording_id': str(recording.id)})
 
@@ -188,7 +190,6 @@ def give_ai_feedback(request):
 
 def save_result(request):
     # Get existing video recording
-    print("Recording ID:", request.data.get('recording_id'))
     recording_obj = videoRecordings.objects.get(id=request.data.get('recording_id'))
 
     # Create a results object

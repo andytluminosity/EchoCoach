@@ -76,8 +76,6 @@ export class Record {
 
         const recordingName = inputElement.value;
 
-        inputElement.value = '';
-
         const videoBuffer = new Blob(this.recording, {
             type: 'video/webm',
         });
@@ -86,6 +84,7 @@ export class Record {
 
         const formData = new FormData();
         formData.append('videoFile', videoBuffer);
+        formData.append('name', recordingName);
 
         // also pass through recordingName
         const recordingId = this.api.saveRecording(formData);
