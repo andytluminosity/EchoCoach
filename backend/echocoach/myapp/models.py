@@ -26,22 +26,6 @@ class Reply(models.Model):
 def get_video_upload_path(instance, filename):
     return os.path.join('recordings', instance.user, str(instance.id) + '.webm')
 
-class videoRecordings(models.Model):
-    # Recording ID (UUID v4)
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-
-    # Name of the recording
-    name = models.CharField(max_length=200, default="")
-
-    # User the recording is for
-    user = models.CharField(max_length=200, default="")
-
-    # Recording file
-    recording = models.FileField(upload_to=get_video_upload_path)
-
-    # Recording creation date
-    created_at = models.DateTimeField(auto_now_add=True)
-    
 class results(models.Model):
     # Result ID (UUID v4)
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -49,8 +33,11 @@ class results(models.Model):
     # User the result is for
     user = models.CharField(max_length=200, default="")
 
-    # Associated recording
-    recording = models.ForeignKey(videoRecordings, on_delete=models.CASCADE)
+    # Name of the result
+    name = models.CharField(max_length=200, default="")
+
+    # Recording file
+    recording = models.FileField(upload_to=get_video_upload_path)
 
     # Result data
     facial_analysis_result = models.JSONField(default=dict)

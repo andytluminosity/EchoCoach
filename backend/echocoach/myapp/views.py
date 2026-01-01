@@ -16,7 +16,7 @@ from rest_framework.authtoken.models import Token
 from django.shortcuts import get_object_or_404
 
 from echocoach.myapp.serializers import UserSerializer
-from echocoach.myapp.models import videoRecordings, results
+from echocoach.myapp.models import results
 
 import whisper
 import tempfile
@@ -66,50 +66,6 @@ def getUserData(request):
     permission_classes = (IsAuthenticated,)
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
-
-def save_recording(request):
-    print("name: ", request.data.get('name'))
-    recording = videoRecordings.objects.create(
-        id=request.data.get('id'),
-        name=request.data.get('name') or "Untitled Recording",
-        user=request.data.get('user'),
-        recording=request.FILES.get('videoFile'),
-    )
-    print("Saved name:", recording.name)
-
-    return Response({'status': 'success', 'recording_id': str(recording.id)})
-
-def get_recording(request):
-    user = request.query_params.get('user', None)
-    numRecordings = request.query_params.get('numRecordings')
-
-    results = videoRecordings.objects.filter(user=user).order_by('-created_at')
-
-    if numRecordings:
-        results = results[:int(numRecordings)]
-
-    serializer = videoRecordingsSerializer(results, many=True)
-    return Response(serializer.data)
-
-@api_view(['POST', 'GET'])
-def save_get_recordings(request):
-    if request.method == 'POST':
-        return save_recording(request)
-    else:
-        return get_recording(request)
-
-@api_view(['POST'])
-def rename_recording(request):
-    recordingId = request.data.get('id')
-    newName = request.data.get('newName')
-    
-    try:
-        recording = videoRecordings.objects.get(id=recordingId)
-        recording.name = newName
-        recording.save()
-        return Response({'message': 'Recording renamed successfully'}, status=status.HTTP_200_OK)
-    except videoRecordings.DoesNotExist:
-        return Response({'error': 'Recording not found'}, status=status.HTTP_404_NOT_FOUND)
 
 # Load the model (small/medium/large depending on accuracy vs speed)
 model = whisper.load_model("base.en")
@@ -189,13 +145,10 @@ def give_ai_feedback(request):
     return Response(feedback)
 
 def save_result(request):
-    # Get existing video recording
-    recording_obj = videoRecordings.objects.get(id=request.data.get('recording_id'))
-
-    # Create a results object
     result = results.objects.create(
         user=request.data.get('user'),
-        recording=recording_obj,
+        name=request.data.get('name') or "Untitled Recording",
+        recording=request.FILES.get('videoFile'),
         facial_analysis_result=request.data.get('facial_analysis_result', {}),
         voice_analysis_result=request.data.get('voice_analysis_result', {}),
         transcribed_text=request.data.get('transcribed_text'),
@@ -246,6 +199,19 @@ def save_get_delete_results(request):
         return save_result(request)
     elif request.method == 'DELETE':
         return delete_result(request)
+
+@api_view(['POST'])
+def rename_result(request):
+    resultId = request.data.get('id')
+    newName = request.data.get('newName')
+    
+    try:
+        result = results.objects.get(id=resultId)
+        result.name = newName
+        result.save()
+        return Response({'message': 'Result renamed successfully'}, status=status.HTTP_200_OK)
+    except results.DoesNotExist:
+        return Response({'error': 'Result not found'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['POST'])
 def update_favourite_result(request):
