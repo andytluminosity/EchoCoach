@@ -24,21 +24,90 @@
             <span class="loading loading-spinner loading-l ml-3"></span>
             }
         </div>
-        <input
-            type="text"
-            id="recordingName"
-            placeholder="Name of recording"
-            class="input w-full"
-        />
-        <div class="modal-action justify-between">
-            <form method="dialog">
-                <button class="btn btn-error" (click)="deleteRecording()">
-                    Delete
-                </button>
+        <div class="modal-action">
+            <form
+                id="confirm_form"
+                class="flex flex-col w-full gap-6"
+                #confirmForm="ngForm"
+                (ngSubmit)="saveRecording()"
+            >
+                <fieldset class="fieldset">
+                    <input
+                        type="text"
+                        id="recordingName"
+                        name="recordingName"
+                        placeholder="Name of recording"
+                        class="input w-full"
+                        [(ngModel)]="recordingName"
+                    />
+                    <p class="label">Optional</p>
+                </fieldset>
+
+                <fieldset class="fieldset">
+                    <select
+                        class="select w-full"
+                        [(ngModel)]="videoType"
+                        name="videoType"
+                        required
+                    >
+                        <option value="" disabled selected>
+                            Pick a video type
+                        </option>
+                        <option value="Interview">Interview Question</option>
+                        <option value="Speech">Speech</option>
+                        <option value="Presentation">Presentation</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <p class="label">Required</p>
+                </fieldset>
+
+                @if (videoType == "Interview") {
+                <fieldset class="fieldset">
+                    <input
+                        type="text"
+                        id="interview_question"
+                        name="interview_question"
+                        placeholder="Enter interview question"
+                        class="input w-full"
+                        [(ngModel)]="interviewQuestion"
+                        required
+                    />
+                    <p class="label">Required</p>
+                </fieldset>
+                } @if (videoType == "Other") {
+                <fieldset class="fieldset">
+                    <label class="input w-full">
+                        Other:
+                        <input
+                            type="text"
+                            id="other"
+                            name="other"
+                            class="grow"
+                            [(ngModel)]="otherResponse"
+                            required
+                        />
+                    </label>
+                    <p class="label">Required</p>
+                </fieldset>
+
+                }
+                <div class="flex flex-row justify-between">
+                    <button
+                        type="reset"
+                        class="btn btn-error"
+                        (click)="deleteRecording()"
+                    >
+                        Delete
+                    </button>
+                    <button
+                        type="submit"
+                        class="btn btn-success"
+                        [disabled]="confirmForm.invalid"
+                    >
+                        Save
+                    </button>
+                </div>
             </form>
-            <button class="btn btn-success" (click)="saveRecording()">
-                Save
-            </button>
         </div>
     </div>
 </dialog>

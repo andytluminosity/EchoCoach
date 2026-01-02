@@ -1,10 +1,11 @@
 import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { Api } from '../api';
 import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 
 @Component({
     selector: 'app-record',
-    imports: [],
+    imports: [FormsModule],
     templateUrl: './record.html',
     styleUrl: './record.css',
     providers: [Api],
@@ -19,6 +20,11 @@ export class Record {
     recording: Blob[] = [];
     downloadUrl = '';
     isLoading = false;
+
+    recordingName = '';
+    videoType = '';
+    interviewQuestion = '';
+    otherResponse = '';
 
     constructor(private api: Api) {}
 
@@ -75,11 +81,6 @@ export class Record {
 
     saveRecording() {
         this.isLoading = true;
-        const inputElement = document.getElementById(
-            'recordingName'
-        ) as HTMLInputElement;
-
-        const recordingName = inputElement.value;
 
         const videoBuffer = new Blob(this.recording, {
             type: 'video/webm',
@@ -107,7 +108,15 @@ export class Record {
 
         const formData = new FormData();
         formData.append('videoFile', videoBuffer);
-        formData.append('name', recordingName);
+        formData.append('name', this.recordingName);
+        formData.append(
+            'type',
+            this.videoType == 'other' ? this.otherResponse : this.videoType
+        );
+        formData.append(
+            'question',
+            this.videoType == 'interview' ? this.interviewQuestion : ''
+        );
 
         // Send for recording analysis
         this.api.sendRecording(formData).then((response) => {
@@ -116,7 +125,15 @@ export class Record {
 
             const resultData = new FormData();
             resultData.append('videoFile', videoBuffer);
-            resultData.append('name', recordingName);
+            resultData.append('name', this.recordingName);
+            resultData.append(
+                'type',
+                this.videoType == 'Other' ? this.otherResponse : this.videoType
+            );
+            resultData.append(
+                'question',
+                this.videoType == 'Interview' ? this.interviewQuestion : ''
+            );
 
             Object.entries(response).forEach(([key, value]) => {
                 resultData.set(key, JSON.stringify(value));
@@ -146,11 +163,11 @@ export class Record {
     }
 
     deleteRecording() {
-        const inputElement = document.getElementById(
-            'recordingName'
-        ) as HTMLInputElement;
+        const dialog = document.getElementById(
+            'confirm_modal'
+        ) as HTMLDialogElement;
 
-        inputElement.value = '';
+        dialog.close();
 
         delete this.mediaRecorder;
     }
