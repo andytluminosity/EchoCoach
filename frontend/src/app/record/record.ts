@@ -151,7 +151,7 @@ export class Record {
                     this.api.saveResult(resultData);
                     console.log('Result saved');
 
-                    this.router.navigate(['/results/feedback']);
+                    this.router.navigate(['/results']);
                 },
                 (error) => {
                     console.log(error);
