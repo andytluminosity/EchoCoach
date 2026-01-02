@@ -202,6 +202,7 @@ def get_single_result(request):
             'user': result.user,
             'name': result.name,
             'type': result.type,
+            'question': result.question,
             'length': result.length,
             'recording': (
                 result.recording.url
