@@ -34,7 +34,7 @@ export class Results {
     async ngOnInit() {
         this.results = await this.getResults()
         this.results = Array.isArray(this.results) ? this.results : [];
-        console.log("Received results: ", this.results);
+        console.log("Received results");
     }
 
     @Input() sortBy: string = 'nameAsc';

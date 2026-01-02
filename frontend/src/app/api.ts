@@ -134,6 +134,10 @@ export class Api {
         return this.http.get(this.baseurl + '/results/?user=' + encodeURIComponent(user));
     }
 
+    getSingleResult(resultId: string): Observable<any> {
+        return this.http.get(this.baseurl + '/results/single/?result_id=' + encodeURIComponent(resultId));
+    }
+
     deleteResult(resultId: string): Observable<any> {
         return this.http.delete(this.baseurl + '/results/?result_id=' + encodeURIComponent(resultId));
     }

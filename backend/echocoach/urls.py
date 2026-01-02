@@ -48,6 +48,7 @@ urlpatterns = [
     path('results/', views.save_get_delete_results, name="Save-Get-Delete-Results"),
     path('results/update-favourite/', views.update_favourite_result, name="Update-Favourite-Result"),
     path('results/rename/', views.rename_result, name="Rename-Result"),
+    path('results/single/', views.get_single_result, name="Get-Single-Result"),
 
     path('', include(router.urls)),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),

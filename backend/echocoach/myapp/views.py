@@ -186,6 +186,29 @@ def get_results(request):
 
     return Response({'results': data})
 
+@api_view(['GET'])
+def get_single_result(request):
+    result_id = request.GET.get('result_id')
+    try:
+        result = results.objects.get(id=result_id)
+        data = {
+            'id': str(result.id),
+            'user': result.user,
+            'name': result.name,
+            'type': result.type,
+            'length': result.length,
+            'facial_analysis_result': result.facial_analysis_result,
+            'voice_analysis_result': result.voice_analysis_result,
+            'transcribed_text': result.transcribed_text,
+            'ai_feedback': result.ai_feedback,
+            'favourited': result.favourited,
+            'deleted': result.deleted,
+            'dateRecorded': result.created_at.strftime("%b %d, %Y").replace(" 0", " ")
+        }
+        return Response({'result': data})
+    except results.DoesNotExist:
+        return Response({'status': 'error', 'message': 'Result not found'}, status=404)
+
 def delete_result(request):
     result_id = request.data.get('result_id')
     try:
