@@ -1,5 +1,6 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import { Component, ElementRef, inject, ViewChild } from '@angular/core';
 import { Api } from '../api';
+import { Router } from '@angular/router';
 
 @Component({
     selector: 'app-record',
@@ -11,10 +12,13 @@ import { Api } from '../api';
 export class Record {
     @ViewChild('video', { static: true }) public video!: ElementRef;
 
+    private router = inject(Router);
+
     stream?: MediaStream;
     mediaRecorder?: MediaRecorder;
     recording: Blob[] = [];
     downloadUrl = '';
+    isLoading = false;
 
     constructor(private api: Api) {}
 
@@ -70,6 +74,7 @@ export class Record {
     }
 
     saveRecording() {
+        this.isLoading = true;
         const inputElement = document.getElementById(
             'recordingName'
         ) as HTMLInputElement;
@@ -79,8 +84,26 @@ export class Record {
         const videoBuffer = new Blob(this.recording, {
             type: 'video/webm',
         });
-        this.downloadUrl = window.URL.createObjectURL(videoBuffer); // you can download with <a> tag
-        console.log(this.downloadUrl);
+
+        function getVideoDuration(blob: Blob): Promise<number> {
+            return new Promise((resolve, reject) => {
+                const blobUrl = URL.createObjectURL(blob);
+
+                const video = document.createElement('video');
+
+                video.onloadedmetadata = () => {
+                    resolve(video.duration);
+                    URL.revokeObjectURL(blobUrl); // Clean up the blob URL
+                };
+
+                video.onerror = () => {
+                    URL.revokeObjectURL(blobUrl);
+                    reject(new Error('Failed to load video metadata.'));
+                };
+
+                video.src = blobUrl;
+            });
+        }
 
         const formData = new FormData();
         formData.append('videoFile', videoBuffer);
@@ -99,13 +122,27 @@ export class Record {
                 resultData.set(key, JSON.stringify(value));
             });
 
-            this.api.saveResult(resultData);
-            console.log('Result saved');
+            getVideoDuration(videoBuffer).then(
+                (value: number) => {
+                    const minutes = Math.floor(value / 60);
+                    const seconds = String(Math.round(value % 60)).padStart(
+                        2,
+                        '0'
+                    );
+                    resultData.append('length', `${minutes}:${seconds}`);
+
+                    this.api.saveResult(resultData);
+                    console.log('Result saved');
+
+                    this.router.navigate(['/results/feedback']);
+                },
+                (error) => {
+                    console.log(error);
+                }
+            );
         });
 
         delete this.mediaRecorder;
-
-        // redirect to feedback page
     }
 
     deleteRecording() {

@@ -39,6 +39,9 @@ class results(models.Model):
     # Type of the result
     type = models.CharField(max_length=200)
 
+    # Length of the recording
+    length = models.CharField(max_length=200)
+
     # Recording file
     recording = models.FileField(upload_to=get_video_upload_path)
 

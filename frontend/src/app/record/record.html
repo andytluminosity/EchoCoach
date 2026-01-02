@@ -18,7 +18,12 @@
 </dialog>
 <dialog id="confirm_modal" class="modal">
     <div class="modal-box">
-        <h3 class="text-lg font-bold mb-6">Save Recording</h3>
+        <div class="flex flex-row mb-6 items-center">
+            <h3 class="text-lg font-bold">Save Recording</h3>
+            @if (isLoading) {
+            <span class="loading loading-spinner loading-l ml-3"></span>
+            }
+        </div>
         <input
             type="text"
             id="recordingName"
@@ -31,11 +36,9 @@
                     Delete
                 </button>
             </form>
-            <form method="dialog">
-                <button class="btn btn-success" (click)="saveRecording()">
-                    Save
-                </button>
-            </form>
+            <button class="btn btn-success" (click)="saveRecording()">
+                Save
+            </button>
         </div>
     </div>
 </dialog>
