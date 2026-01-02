@@ -136,7 +136,7 @@
                 @for (result of results; track result.id; let idx = $index) {
                 <tr
                     class="hover:bg-base-300 cursor-pointer"
-                    [routerLink]="['feedback']"
+                    [routerLink]="['/results/feedback', result.id]"
                 >
                     <th>{{ idx + 1 }}</th>
                     <td>{{ result.name }}</td>

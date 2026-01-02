@@ -36,7 +36,7 @@ export const routes: Routes = [
         canActivate: [loginGuard],
     },
     {
-        path: 'results/feedback',
+        path: 'results/feedback/:result_id',
         component: Feedback,
         title: 'Feedback',
         canActivate: [loginGuard],
