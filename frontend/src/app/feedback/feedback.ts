@@ -1,4 +1,4 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, Signal } from '@angular/core';
 
 import { AgCharts } from 'ag-charts-angular';
 import {
@@ -10,6 +10,10 @@ import {
     NumberFormatterParams,
 } from 'ag-charts-community';
 import { ThemeService } from '../themeService';
+import { ActivatedRoute } from '@angular/router';
+import { Api } from '../api';
+import { Result } from '../customTypes/result';
+import { firstValueFrom } from 'rxjs';
 
 ModuleRegistry.registerModules([DonutSeriesModule, LegendModule]);
 
@@ -18,105 +22,182 @@ ModuleRegistry.registerModules([DonutSeriesModule, LegendModule]);
     imports: [AgCharts],
     templateUrl: './feedback.html',
     styleUrl: './feedback.css',
+    providers: [Api],
 })
 export class Feedback {
+    result: Result = {
+        id: '',
+        user: '',
+        name: '',
+        type: '',
+        recording: '',
+        facial_analysis_result: '',
+        voice_analysis_result: '',
+        transcribed_text: '',
+        ai_feedback: '',
+        favourited: false,
+        deleted: false,
+        length: 0,
+        dateRecorded: ''
+    };
+    
+    recordingName!: string;
+    transcribedText!: string;
+    eyeScore!: number;
+    parsedFacialAnalysis!: any;
+    facialScores!: { Emotion: string; Score: number }[];
+    dominantFacialEmotion!: string;
+    parsedVoiceAnalysis!: any;
+    voiceScores!: { Emotion: string; Score: number }[];
+    dominantVoiceEmotion!: string;
+    recordingSrc!: string;
+
+    facialDonutChart!: Signal<AgChartOptions>;
+    voiceDonutChart!: Signal<AgChartOptions>;
+
+    constructor(private route: ActivatedRoute, private api: Api) {
+        this.route.params.subscribe(async params => {
+            try {
+                const resultData = await firstValueFrom(this.api.getSingleResult(params['result_id']));
+                console.log('resultData:', resultData);
+                if (resultData && resultData.result) {
+                    this.result = resultData.result as unknown as Result;
+                }
+                console.log('this.result:', this.result);
+                this.recordingName = this.result.name;
+                this.transcribedText = this.result.transcribed_text;
+                this.eyeScore = 0.6;
+
+                this.parsedFacialAnalysis = this.result.facial_analysis_result ? JSON.parse(this.result.facial_analysis_result) : null;
+                this.facialScores = this.parsedFacialAnalysis && this.parsedFacialAnalysis[0]?.[2] ? 
+                    [ 
+                        { Emotion: 'Angry', Score: this.parsedFacialAnalysis[0][2][0] }, 
+                        { Emotion: 'Disgust', Score: this.parsedFacialAnalysis[0][2][1] },
+                        { Emotion: 'Fear', Score: this.parsedFacialAnalysis[0][2][2] },
+                        { Emotion: 'Happy', Score: this.parsedFacialAnalysis[0][2][3] },
+                        { Emotion: 'Sad', Score: this.parsedFacialAnalysis[0][2][4] },
+                        { Emotion: 'Surprise', Score: this.parsedFacialAnalysis[0][2][5] },
+                        { Emotion: 'Neutral', Score: this.parsedFacialAnalysis[0][2][6] }
+                    ]
+                    : [
+                        { Emotion: 'Angry', Score: 0 },
+                        { Emotion: 'Disgust', Score: 0 },
+                        { Emotion: 'Fear', Score: 0 },
+                        { Emotion: 'Happy', Score: 0 },
+                        { Emotion: 'Sad', Score: 0 },
+                        { Emotion: 'Surprise', Score: 0 },
+                        { Emotion: 'Neutral', Score: 0 }
+                    ];
+                console.log('facialScores:', this.facialScores);
+
+                this.dominantFacialEmotion = this.facialScores.reduce((prev, current) => (prev.Score > current.Score) ? prev : current).Emotion;
+
+                this.parsedVoiceAnalysis = this.result.voice_analysis_result ? JSON.parse(this.result.voice_analysis_result) : null;
+                this.voiceScores = this.parsedVoiceAnalysis ? 
+                    [ 
+                        { Emotion: 'Neutral', Score: this.parsedVoiceAnalysis.confidence_scores.neutral }, 
+                        { Emotion: 'Happy', Score: this.parsedVoiceAnalysis.confidence_scores.happy },
+                        { Emotion: 'Sad', Score: this.parsedVoiceAnalysis.confidence_scores.sad },
+                        { Emotion: 'Angry', Score: this.parsedVoiceAnalysis.confidence_scores.angry },
+                        { Emotion: 'Fear', Score: this.parsedVoiceAnalysis.confidence_scores.fear },
+                        { Emotion: 'Disgust', Score: this.parsedVoiceAnalysis.confidence_scores.disgust },
+                        { Emotion: 'Surprise', Score: this.parsedVoiceAnalysis.confidence_scores.surprise }
+                    ]
+                    : [
+                        { Emotion: 'Neutral', Score: 0 },
+                        { Emotion: 'Happy', Score: 0 },
+                        { Emotion: 'Sad', Score: 0 },
+                        { Emotion: 'Angry', Score: 0 },
+                        { Emotion: 'Fear', Score: 0 },
+                        { Emotion: 'Disgust', Score: 0 },
+                        { Emotion: 'Surprise', Score: 0 }
+                    ];
+                console.log('voiceScores:', this.voiceScores);
+
+                // Get directly from request and capitalize first letter of the emotion
+                this.dominantVoiceEmotion = this.parsedVoiceAnalysis?.emotion ? 
+                this.parsedVoiceAnalysis.emotion.charAt(0).toUpperCase() + this.parsedVoiceAnalysis.emotion.slice(1) : 'Neutral';
+            
+                this.recordingSrc = this.result.recording;
+
+                // Rebuild donut charts with data from api
+                this.facialDonutChart = computed(() => {
+                    const textColor = getComputedStyle(document.documentElement)
+                        .getPropertyValue('--color-base-content')
+                        .trim();
+
+                    // depend on theme signal
+                    this.themeService.currentTheme();
+
+                    return {
+                        data: this.facialScores,
+                        title: {
+                            text: 'Facial Emotion Confidence Scores',
+                            color: textColor,
+                        },
+                        legend: {
+                            item: {
+                                label: {
+                                    color: textColor,
+                                },
+                            },
+                        },
+                        series: [
+                            {
+                                type: 'donut',
+                                calloutLabelKey: 'Emotion',
+                                angleKey: 'Score',
+                                calloutLabel: {
+                                    color: textColor,
+                                    fontSize: 12,
+                                },
+                            } as AgDonutSeriesOptions,
+                        ],
+                        background: { visible: false },
+                    };
+                });
+
+                this.voiceDonutChart = computed<AgChartOptions>(() => {
+                    const textColor = getComputedStyle(document.documentElement)
+                        .getPropertyValue('--color-base-content')
+                        .trim();
+
+                    // depend on theme signal
+                    this.themeService.currentTheme();
+
+                    return {
+                        data: this.voiceScores,
+                        title: {
+                            text: 'Voice Emotion Confidence Scores',
+                            color: textColor,
+                        },
+                        legend: {
+                            item: {
+                                label: {
+                                    color: textColor,
+                                },
+                            },
+                        },
+                        series: [
+                            {
+                                type: 'donut',
+                                calloutLabelKey: 'Emotion',
+                                angleKey: 'Score',
+                                calloutLabel: {
+                                    color: textColor,
+                                    fontSize: 12,
+                                },
+                            } as AgDonutSeriesOptions,
+                        ],
+                        background: { visible: false },
+                    };
+                });
+                console.log('Result from route:', this.result);
+            } catch (error) {
+                console.error('Error fetching result:', error);
+            }
+        });
+    }
+
     themeService = inject(ThemeService);
-
-    recordingName = 'Test_Recording';
-    transcribedText =
-        'This is a test recording. Real transcribed text comes from GPT analysis. This is a test recording. Real transcribed text comes from GPT analysis. This is a test recording. Real transcribed text comes from GPT analysis. This is a test recording. Real transcribed text comes from GPT analysis. This is a test recording. Real transcribed text comes from GPT analysis. This is a test recording. Real transcribed text comes from GPT analysis.';
-    eyeScore = 0.6;
-    facialScores = [
-        { Emotion: 'Anger', Score: 1 },
-        { Emotion: 'Disgust', Score: 20 },
-        { Emotion: 'Fear', Score: 3 },
-        { Emotion: 'Happy', Score: 40 },
-        { Emotion: 'Sad', Score: 6 },
-        { Emotion: 'Surprise', Score: 4 },
-        { Emotion: 'Neutral', Score: 3 },
-    ];
-    dominantFacialEmotion = 'Happy';
-    voiceScores = [
-        { Emotion: 'Neutral', Score: 0 },
-        { Emotion: 'Happy', Score: 60 },
-        { Emotion: 'Sad', Score: 20 },
-        { Emotion: 'Angry', Score: 0 },
-        { Emotion: 'Fear', Score: 10 },
-        { Emotion: 'Disgust', Score: 10 },
-        { Emotion: 'Surprise', Score: 0 },
-    ];
-    dominantVoiceEmotion = 'Happy';
-    recordingSrc = 'placeholderVideo.mp4';
-
-    facialDonutChart = computed<AgChartOptions>(() => {
-        const textColor = getComputedStyle(document.documentElement)
-            .getPropertyValue('--color-base-content')
-            .trim();
-
-        // depend on theme signal
-        this.themeService.currentTheme();
-
-        return {
-            data: this.facialScores,
-            title: {
-                text: 'Facial Emotion Confidence Scores',
-                color: textColor,
-            },
-            legend: {
-                item: {
-                    label: {
-                        color: textColor,
-                    },
-                },
-            },
-            series: [
-                {
-                    type: 'donut',
-                    calloutLabelKey: 'Emotion',
-                    angleKey: 'Score',
-                    calloutLabel: {
-                        color: textColor,
-                        fontSize: 12,
-                    },
-                } as AgDonutSeriesOptions,
-            ],
-            background: { visible: false },
-        };
-    });
-
-    voiceDonutChart = computed<AgChartOptions>(() => {
-        const textColor = getComputedStyle(document.documentElement)
-            .getPropertyValue('--color-base-content')
-            .trim();
-
-        // depend on theme signal
-        this.themeService.currentTheme();
-
-        return {
-            data: this.voiceScores,
-            title: {
-                text: 'Voice Emotion Confidence Scores',
-                color: textColor,
-            },
-            legend: {
-                item: {
-                    label: {
-                        color: textColor,
-                    },
-                },
-            },
-            series: [
-                {
-                    type: 'donut',
-                    calloutLabelKey: 'Emotion',
-                    angleKey: 'Score',
-                    calloutLabel: {
-                        color: textColor,
-                        fontSize: 12,
-                    },
-                } as AgDonutSeriesOptions,
-            ],
-            background: { visible: false },
-        };
-    });
 }

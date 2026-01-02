@@ -175,6 +175,10 @@ def get_results(request):
                 'name': result.name,
                 'type': result.type,
                 'length': result.length,
+                'recording': (
+                    result.recording.url
+                    if result.recording else None
+                ),
                 'facial_analysis_result': result.facial_analysis_result,
                 'voice_analysis_result': result.voice_analysis_result,
                 'transcribed_text': result.transcribed_text,
@@ -197,6 +201,10 @@ def get_single_result(request):
             'name': result.name,
             'type': result.type,
             'length': result.length,
+            'recording': (
+                result.recording.url
+                if result.recording else None
+            ),
             'facial_analysis_result': result.facial_analysis_result,
             'voice_analysis_result': result.voice_analysis_result,
             'transcribed_text': result.transcribed_text,

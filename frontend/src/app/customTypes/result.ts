@@ -3,6 +3,7 @@ export interface Result {
     user: string;
     name: string;
     type: string;
+    recording: string;
     facial_analysis_result: string;
     voice_analysis_result: string;
     transcribed_text: string;
