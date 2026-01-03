@@ -1,5 +1,6 @@
 import { Component, computed, inject, Signal } from '@angular/core';
-
+// NgIf is deprecated but still used for conditional rendering
+import { NgIf } from '@angular/common';
 import { AgCharts } from 'ag-charts-angular';
 import {
     AgChartOptions,
@@ -15,11 +16,15 @@ import { Api } from '../api';
 import { Result } from '../customTypes/result';
 import { firstValueFrom } from 'rxjs';
 
+import { VjsPlayerComponent } from '../vjs-player-component/vjs-player-component';
+import { environment } from '../environments/environment';
+
 ModuleRegistry.registerModules([DonutSeriesModule, LegendModule]);
 
 @Component({
     selector: 'app-feedback',
-    imports: [AgCharts],
+    standalone: true,
+    imports: [AgCharts, VjsPlayerComponent, NgIf],
     templateUrl: './feedback.html',
     styleUrl: './feedback.css',
     providers: [Api],
@@ -55,6 +60,8 @@ export class Feedback {
     facialDonutChart!: Signal<AgChartOptions>;
     voiceDonutChart!: Signal<AgChartOptions>;
 
+    private readonly MEDIA_ROOT = environment.baseUrl;
+
     constructor(private route: ActivatedRoute, private api: Api) {
         this.route.params.subscribe(async params => {
             try {
@@ -65,6 +72,8 @@ export class Feedback {
                 }
                 console.log('this.result:', this.result);
                 this.recordingName = this.result.name;
+                this.recordingSrc = this.MEDIA_ROOT + this.result.recording;
+                console.log('recordingSrc:', this.recordingSrc);
                 this.transcribedText = this.result.transcribed_text;
                 this.eyeScore = 0.6;
 
@@ -117,8 +126,6 @@ export class Feedback {
                 // Get directly from request and capitalize first letter of the emotion
                 this.dominantVoiceEmotion = this.parsedVoiceAnalysis?.emotion ? 
                 this.parsedVoiceAnalysis.emotion.charAt(0).toUpperCase() + this.parsedVoiceAnalysis.emotion.slice(1) : 'Neutral';
-            
-                this.recordingSrc = this.result.recording;
 
                 // Rebuild donut charts with data from api
                 this.facialDonutChart = computed(() => {

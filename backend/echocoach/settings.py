@@ -163,3 +163,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
 }
+
+MEDIA_URL = ''
+MEDIA_ROOT = BASE_DIR

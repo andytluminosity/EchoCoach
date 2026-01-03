@@ -56,12 +56,16 @@
     </div>
     <div class="divider"></div>
     <div class="flex gap-12 self-center">
-        <video
-            src=""
-            class="border-3 border-accent self-center"
-            width="640"
-            height="480"
-        ></video>
+        <app-vjs-player
+        *ngIf="recordingSrc"
+        [options]="{
+            autoplay: true,
+            controls: true,
+            fluid: true,
+            aspectRatio: '16:9',
+            sources: [{ src: recordingSrc, type: 'video/mp4' }]
+        }"
+        ></app-vjs-player>
         <p class="text-xl text-center">{{ transcribedText }}</p>
     </div>
     <div class="stats shadow">
