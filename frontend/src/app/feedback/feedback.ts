@@ -43,9 +43,9 @@ export class Feedback {
         favourited: false,
         deleted: false,
         length: 0,
-        dateRecorded: ''
+        dateRecorded: '',
     };
-    
+
     recordingName!: string;
     transcribedText!: string;
     eyeScore!: number;
@@ -63,9 +63,11 @@ export class Feedback {
     private readonly MEDIA_ROOT = environment.baseUrl;
 
     constructor(private route: ActivatedRoute, private api: Api) {
-        this.route.params.subscribe(async params => {
+        this.route.params.subscribe(async (params) => {
             try {
-                const resultData = await firstValueFrom(this.api.getSingleResult(params['result_id']));
+                const resultData = await firstValueFrom(
+                    this.api.getSingleResult(params['result_id'])
+                );
                 console.log('resultData:', resultData);
                 if (resultData && resultData.result) {
                     this.result = resultData.result as unknown as Result;
@@ -75,57 +77,117 @@ export class Feedback {
                 this.recordingSrc = this.MEDIA_ROOT + this.result.recording;
                 console.log('recordingSrc:', this.recordingSrc);
                 this.transcribedText = this.result.transcribed_text;
-                this.eyeScore = 0.6;
 
-                this.parsedFacialAnalysis = this.result.facial_analysis_result ? JSON.parse(this.result.facial_analysis_result) : null;
-                this.facialScores = this.parsedFacialAnalysis && this.parsedFacialAnalysis[0]?.[2] ? 
-                    [ 
-                        { Emotion: 'Angry', Score: this.parsedFacialAnalysis[0][2][0] }, 
-                        { Emotion: 'Disgust', Score: this.parsedFacialAnalysis[0][2][1] },
-                        { Emotion: 'Fear', Score: this.parsedFacialAnalysis[0][2][2] },
-                        { Emotion: 'Happy', Score: this.parsedFacialAnalysis[0][2][3] },
-                        { Emotion: 'Sad', Score: this.parsedFacialAnalysis[0][2][4] },
-                        { Emotion: 'Surprise', Score: this.parsedFacialAnalysis[0][2][5] },
-                        { Emotion: 'Neutral', Score: this.parsedFacialAnalysis[0][2][6] }
-                    ]
-                    : [
-                        { Emotion: 'Angry', Score: 0 },
-                        { Emotion: 'Disgust', Score: 0 },
-                        { Emotion: 'Fear', Score: 0 },
-                        { Emotion: 'Happy', Score: 0 },
-                        { Emotion: 'Sad', Score: 0 },
-                        { Emotion: 'Surprise', Score: 0 },
-                        { Emotion: 'Neutral', Score: 0 }
-                    ];
+                this.parsedFacialAnalysis = this.result.facial_analysis_result
+                    ? JSON.parse(this.result.facial_analysis_result)
+                    : null;
+                this.eyeScore = this.parsedFacialAnalysis[0];
+                this.facialScores =
+                    this.parsedFacialAnalysis &&
+                    this.parsedFacialAnalysis[0]?.[2]
+                        ? [
+                              {
+                                  Emotion: 'Angry',
+                                  Score: this.parsedFacialAnalysis[0][1][0],
+                              },
+                              {
+                                  Emotion: 'Disgust',
+                                  Score: this.parsedFacialAnalysis[0][1][1],
+                              },
+                              {
+                                  Emotion: 'Fear',
+                                  Score: this.parsedFacialAnalysis[0][1][2],
+                              },
+                              {
+                                  Emotion: 'Happy',
+                                  Score: this.parsedFacialAnalysis[0][1][3],
+                              },
+                              {
+                                  Emotion: 'Sad',
+                                  Score: this.parsedFacialAnalysis[0][1][4],
+                              },
+                              {
+                                  Emotion: 'Surprise',
+                                  Score: this.parsedFacialAnalysis[0][1][5],
+                              },
+                              {
+                                  Emotion: 'Neutral',
+                                  Score: this.parsedFacialAnalysis[0][1][6],
+                              },
+                          ]
+                        : [
+                              { Emotion: 'Angry', Score: 0 },
+                              { Emotion: 'Disgust', Score: 0 },
+                              { Emotion: 'Fear', Score: 0 },
+                              { Emotion: 'Happy', Score: 0 },
+                              { Emotion: 'Sad', Score: 0 },
+                              { Emotion: 'Surprise', Score: 0 },
+                              { Emotion: 'Neutral', Score: 0 },
+                          ];
                 console.log('facialScores:', this.facialScores);
 
-                this.dominantFacialEmotion = this.facialScores.reduce((prev, current) => (prev.Score > current.Score) ? prev : current).Emotion;
+                this.dominantFacialEmotion = this.facialScores.reduce(
+                    (prev, current) =>
+                        prev.Score > current.Score ? prev : current
+                ).Emotion;
 
-                this.parsedVoiceAnalysis = this.result.voice_analysis_result ? JSON.parse(this.result.voice_analysis_result) : null;
-                this.voiceScores = this.parsedVoiceAnalysis ? 
-                    [ 
-                        { Emotion: 'Neutral', Score: this.parsedVoiceAnalysis.confidence_scores.neutral }, 
-                        { Emotion: 'Happy', Score: this.parsedVoiceAnalysis.confidence_scores.happy },
-                        { Emotion: 'Sad', Score: this.parsedVoiceAnalysis.confidence_scores.sad },
-                        { Emotion: 'Angry', Score: this.parsedVoiceAnalysis.confidence_scores.angry },
-                        { Emotion: 'Fear', Score: this.parsedVoiceAnalysis.confidence_scores.fear },
-                        { Emotion: 'Disgust', Score: this.parsedVoiceAnalysis.confidence_scores.disgust },
-                        { Emotion: 'Surprise', Score: this.parsedVoiceAnalysis.confidence_scores.surprise }
-                    ]
+                this.parsedVoiceAnalysis = this.result.voice_analysis_result
+                    ? JSON.parse(this.result.voice_analysis_result)
+                    : null;
+                this.voiceScores = this.parsedVoiceAnalysis
+                    ? [
+                          {
+                              Emotion: 'Neutral',
+                              Score: this.parsedVoiceAnalysis.confidence_scores
+                                  .neutral,
+                          },
+                          {
+                              Emotion: 'Happy',
+                              Score: this.parsedVoiceAnalysis.confidence_scores
+                                  .happy,
+                          },
+                          {
+                              Emotion: 'Sad',
+                              Score: this.parsedVoiceAnalysis.confidence_scores
+                                  .sad,
+                          },
+                          {
+                              Emotion: 'Angry',
+                              Score: this.parsedVoiceAnalysis.confidence_scores
+                                  .angry,
+                          },
+                          {
+                              Emotion: 'Fear',
+                              Score: this.parsedVoiceAnalysis.confidence_scores
+                                  .fear,
+                          },
+                          {
+                              Emotion: 'Disgust',
+                              Score: this.parsedVoiceAnalysis.confidence_scores
+                                  .disgust,
+                          },
+                          {
+                              Emotion: 'Surprise',
+                              Score: this.parsedVoiceAnalysis.confidence_scores
+                                  .surprise,
+                          },
+                      ]
                     : [
-                        { Emotion: 'Neutral', Score: 0 },
-                        { Emotion: 'Happy', Score: 0 },
-                        { Emotion: 'Sad', Score: 0 },
-                        { Emotion: 'Angry', Score: 0 },
-                        { Emotion: 'Fear', Score: 0 },
-                        { Emotion: 'Disgust', Score: 0 },
-                        { Emotion: 'Surprise', Score: 0 }
-                    ];
+                          { Emotion: 'Neutral', Score: 0 },
+                          { Emotion: 'Happy', Score: 0 },
+                          { Emotion: 'Sad', Score: 0 },
+                          { Emotion: 'Angry', Score: 0 },
+                          { Emotion: 'Fear', Score: 0 },
+                          { Emotion: 'Disgust', Score: 0 },
+                          { Emotion: 'Surprise', Score: 0 },
+                      ];
                 console.log('voiceScores:', this.voiceScores);
 
                 // Get directly from request and capitalize first letter of the emotion
-                this.dominantVoiceEmotion = this.parsedVoiceAnalysis?.emotion ? 
-                this.parsedVoiceAnalysis.emotion.charAt(0).toUpperCase() + this.parsedVoiceAnalysis.emotion.slice(1) : 'Neutral';
+                this.dominantVoiceEmotion = this.parsedVoiceAnalysis?.emotion
+                    ? this.parsedVoiceAnalysis.emotion.charAt(0).toUpperCase() +
+                      this.parsedVoiceAnalysis.emotion.slice(1)
+                    : 'Neutral';
 
                 // Rebuild donut charts with data from api
                 this.facialDonutChart = computed(() => {
