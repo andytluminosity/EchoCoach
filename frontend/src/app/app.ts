@@ -1,13 +1,12 @@
 import { Component, inject, Injectable } from '@angular/core';
 import { RouterModule, RouterOutlet } from '@angular/router';
 import { Api } from './api';
-import { Home } from './home/home';
 import { CommonModule } from '@angular/common';
 import { ThemeService } from './themeService';
 
 @Component({
     selector: 'app-root',
-    imports: [RouterModule, Home, CommonModule],
+    imports: [RouterModule, CommonModule],
     templateUrl: './app.html',
     styleUrl: './app.css',
     providers: [Api],
