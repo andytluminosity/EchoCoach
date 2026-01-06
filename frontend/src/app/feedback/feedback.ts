@@ -1,4 +1,4 @@
-import { Component, computed, inject, Signal } from '@angular/core';
+import { Component, computed, inject, signal, Signal } from '@angular/core';
 // NgIf is deprecated but still used for conditional rendering
 import { NgIf } from '@angular/common';
 import { AgCharts } from 'ag-charts-angular';
@@ -46,19 +46,103 @@ export class Feedback {
         dateRecorded: '',
     };
 
-    recordingName!: string;
+    recordingName: string = 'untitled';
     transcribedText!: string;
-    eyeScore!: number;
+    eyeScore: number = 0;
     parsedFacialAnalysis!: any;
-    facialScores!: { Emotion: string; Score: number }[];
+    facialScores = signal([
+        { Emotion: 'Anger', Score: 1 },
+        { Emotion: 'Disgust', Score: 20 },
+        { Emotion: 'Fear', Score: 3 },
+        { Emotion: 'Happy', Score: 40 },
+        { Emotion: 'Sad', Score: 6 },
+        { Emotion: 'Surprise', Score: 4 },
+        { Emotion: 'Neutral', Score: 3 },
+    ]);
     dominantFacialEmotion!: string;
     parsedVoiceAnalysis!: any;
-    voiceScores!: { Emotion: string; Score: number }[];
+    voiceScores = signal([
+        { Emotion: 'Neutral', Score: 0 },
+        { Emotion: 'Happy', Score: 60 },
+        { Emotion: 'Sad', Score: 20 },
+        { Emotion: 'Angry', Score: 0 },
+        { Emotion: 'Fear', Score: 10 },
+        { Emotion: 'Disgust', Score: 10 },
+        { Emotion: 'Surprise', Score: 0 },
+    ]);
     dominantVoiceEmotion!: string;
     recordingSrc!: string;
 
-    facialDonutChart!: Signal<AgChartOptions>;
-    voiceDonutChart!: Signal<AgChartOptions>;
+    facialDonutChart = computed<AgChartOptions>(() => {
+        const textColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--color-base-content')
+            .trim();
+
+        // depend on theme signal
+        this.themeService.currentTheme();
+
+        return {
+            data: this.facialScores(),
+            title: {
+                text: 'Facial Emotion Confidence Scores',
+                color: textColor,
+            },
+            legend: {
+                item: {
+                    label: {
+                        color: textColor,
+                    },
+                },
+            },
+            series: [
+                {
+                    type: 'donut',
+                    calloutLabelKey: 'Emotion',
+                    angleKey: 'Score',
+                    calloutLabel: {
+                        color: textColor,
+                        fontSize: 12,
+                    },
+                } as AgDonutSeriesOptions,
+            ],
+            background: { visible: false },
+        };
+    });
+    voiceDonutChart = computed<AgChartOptions>(() => {
+        const textColor = getComputedStyle(document.documentElement)
+            .getPropertyValue('--color-base-content')
+            .trim();
+
+        // depend on theme signal
+        this.themeService.currentTheme();
+
+        return {
+            data: this.voiceScores(),
+            title: {
+                text: 'Voice Emotion Confidence Scores',
+                color: textColor,
+            },
+            legend: {
+                item: {
+                    label: {
+                        color: textColor,
+                    },
+                },
+            },
+            series: [
+                {
+                    type: 'donut',
+                    calloutLabelKey: 'Emotion',
+                    angleKey: 'Score',
+                    calloutLabel: {
+                        color: textColor,
+                        fontSize: 12,
+                    },
+                } as AgDonutSeriesOptions,
+            ],
+            background: { visible: false },
+        };
+    });
 
     private readonly MEDIA_ROOT = environment.baseUrl;
 
@@ -82,37 +166,36 @@ export class Feedback {
                     ? JSON.parse(this.result.facial_analysis_result)
                     : null;
                 this.eyeScore = this.parsedFacialAnalysis[0];
-                this.facialScores =
-                    this.parsedFacialAnalysis &&
-                    this.parsedFacialAnalysis[0]?.[2]
+                this.facialScores.set(
+                    this.parsedFacialAnalysis && this.parsedFacialAnalysis[1]
                         ? [
                               {
                                   Emotion: 'Angry',
-                                  Score: this.parsedFacialAnalysis[0][1][0],
+                                  Score: this.parsedFacialAnalysis[1][0],
                               },
                               {
                                   Emotion: 'Disgust',
-                                  Score: this.parsedFacialAnalysis[0][1][1],
+                                  Score: this.parsedFacialAnalysis[1][1],
                               },
                               {
                                   Emotion: 'Fear',
-                                  Score: this.parsedFacialAnalysis[0][1][2],
+                                  Score: this.parsedFacialAnalysis[1][2],
                               },
                               {
                                   Emotion: 'Happy',
-                                  Score: this.parsedFacialAnalysis[0][1][3],
+                                  Score: this.parsedFacialAnalysis[1][3],
                               },
                               {
                                   Emotion: 'Sad',
-                                  Score: this.parsedFacialAnalysis[0][1][4],
+                                  Score: this.parsedFacialAnalysis[1][4],
                               },
                               {
                                   Emotion: 'Surprise',
-                                  Score: this.parsedFacialAnalysis[0][1][5],
+                                  Score: this.parsedFacialAnalysis[1][5],
                               },
                               {
                                   Emotion: 'Neutral',
-                                  Score: this.parsedFacialAnalysis[0][1][6],
+                                  Score: this.parsedFacialAnalysis[1][6],
                               },
                           ]
                         : [
@@ -123,10 +206,11 @@ export class Feedback {
                               { Emotion: 'Sad', Score: 0 },
                               { Emotion: 'Surprise', Score: 0 },
                               { Emotion: 'Neutral', Score: 0 },
-                          ];
+                          ]
+                );
                 console.log('facialScores:', this.facialScores);
 
-                this.dominantFacialEmotion = this.facialScores.reduce(
+                this.dominantFacialEmotion = this.facialScores().reduce(
                     (prev, current) =>
                         prev.Score > current.Score ? prev : current
                 ).Emotion;
@@ -134,53 +218,55 @@ export class Feedback {
                 this.parsedVoiceAnalysis = this.result.voice_analysis_result
                     ? JSON.parse(this.result.voice_analysis_result)
                     : null;
-                this.voiceScores = this.parsedVoiceAnalysis
-                    ? [
-                          {
-                              Emotion: 'Neutral',
-                              Score: this.parsedVoiceAnalysis.confidence_scores
-                                  .neutral,
-                          },
-                          {
-                              Emotion: 'Happy',
-                              Score: this.parsedVoiceAnalysis.confidence_scores
-                                  .happy,
-                          },
-                          {
-                              Emotion: 'Sad',
-                              Score: this.parsedVoiceAnalysis.confidence_scores
-                                  .sad,
-                          },
-                          {
-                              Emotion: 'Angry',
-                              Score: this.parsedVoiceAnalysis.confidence_scores
-                                  .angry,
-                          },
-                          {
-                              Emotion: 'Fear',
-                              Score: this.parsedVoiceAnalysis.confidence_scores
-                                  .fear,
-                          },
-                          {
-                              Emotion: 'Disgust',
-                              Score: this.parsedVoiceAnalysis.confidence_scores
-                                  .disgust,
-                          },
-                          {
-                              Emotion: 'Surprise',
-                              Score: this.parsedVoiceAnalysis.confidence_scores
-                                  .surprise,
-                          },
-                      ]
-                    : [
-                          { Emotion: 'Neutral', Score: 0 },
-                          { Emotion: 'Happy', Score: 0 },
-                          { Emotion: 'Sad', Score: 0 },
-                          { Emotion: 'Angry', Score: 0 },
-                          { Emotion: 'Fear', Score: 0 },
-                          { Emotion: 'Disgust', Score: 0 },
-                          { Emotion: 'Surprise', Score: 0 },
-                      ];
+                this.voiceScores.set(
+                    this.parsedVoiceAnalysis
+                        ? [
+                              {
+                                  Emotion: 'Neutral',
+                                  Score: this.parsedVoiceAnalysis
+                                      .confidence_scores.neutral,
+                              },
+                              {
+                                  Emotion: 'Happy',
+                                  Score: this.parsedVoiceAnalysis
+                                      .confidence_scores.happy,
+                              },
+                              {
+                                  Emotion: 'Sad',
+                                  Score: this.parsedVoiceAnalysis
+                                      .confidence_scores.sad,
+                              },
+                              {
+                                  Emotion: 'Angry',
+                                  Score: this.parsedVoiceAnalysis
+                                      .confidence_scores.angry,
+                              },
+                              {
+                                  Emotion: 'Fear',
+                                  Score: this.parsedVoiceAnalysis
+                                      .confidence_scores.fear,
+                              },
+                              {
+                                  Emotion: 'Disgust',
+                                  Score: this.parsedVoiceAnalysis
+                                      .confidence_scores.disgust,
+                              },
+                              {
+                                  Emotion: 'Surprise',
+                                  Score: this.parsedVoiceAnalysis
+                                      .confidence_scores.surprise,
+                              },
+                          ]
+                        : [
+                              { Emotion: 'Neutral', Score: 0 },
+                              { Emotion: 'Happy', Score: 0 },
+                              { Emotion: 'Sad', Score: 0 },
+                              { Emotion: 'Angry', Score: 0 },
+                              { Emotion: 'Fear', Score: 0 },
+                              { Emotion: 'Disgust', Score: 0 },
+                              { Emotion: 'Surprise', Score: 0 },
+                          ]
+                );
                 console.log('voiceScores:', this.voiceScores);
 
                 // Get directly from request and capitalize first letter of the emotion
@@ -189,78 +275,6 @@ export class Feedback {
                       this.parsedVoiceAnalysis.emotion.slice(1)
                     : 'Neutral';
 
-                // Rebuild donut charts with data from api
-                this.facialDonutChart = computed(() => {
-                    const textColor = getComputedStyle(document.documentElement)
-                        .getPropertyValue('--color-base-content')
-                        .trim();
-
-                    // depend on theme signal
-                    this.themeService.currentTheme();
-
-                    return {
-                        data: this.facialScores,
-                        title: {
-                            text: 'Facial Emotion Confidence Scores',
-                            color: textColor,
-                        },
-                        legend: {
-                            item: {
-                                label: {
-                                    color: textColor,
-                                },
-                            },
-                        },
-                        series: [
-                            {
-                                type: 'donut',
-                                calloutLabelKey: 'Emotion',
-                                angleKey: 'Score',
-                                calloutLabel: {
-                                    color: textColor,
-                                    fontSize: 12,
-                                },
-                            } as AgDonutSeriesOptions,
-                        ],
-                        background: { visible: false },
-                    };
-                });
-
-                this.voiceDonutChart = computed<AgChartOptions>(() => {
-                    const textColor = getComputedStyle(document.documentElement)
-                        .getPropertyValue('--color-base-content')
-                        .trim();
-
-                    // depend on theme signal
-                    this.themeService.currentTheme();
-
-                    return {
-                        data: this.voiceScores,
-                        title: {
-                            text: 'Voice Emotion Confidence Scores',
-                            color: textColor,
-                        },
-                        legend: {
-                            item: {
-                                label: {
-                                    color: textColor,
-                                },
-                            },
-                        },
-                        series: [
-                            {
-                                type: 'donut',
-                                calloutLabelKey: 'Emotion',
-                                angleKey: 'Score',
-                                calloutLabel: {
-                                    color: textColor,
-                                    fontSize: 12,
-                                },
-                            } as AgDonutSeriesOptions,
-                        ],
-                        background: { visible: false },
-                    };
-                });
                 console.log('Result from route:', this.result);
             } catch (error) {
                 console.error('Error fetching result:', error);
