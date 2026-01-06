@@ -107,6 +107,8 @@ def analyze_facial(request):
                     facial_expressions_scores[pred] += 1
 
                     #nitec (Eye contact)
+                    frame = torch.permute(frame, (1, 2, 0)) # permute torch tensor to be correct shape
+                    frame = frame.detach().cpu().numpy() # convert tensor into numpy array, which is what nitec accepts
                     results = nitec_pipeline.predict(frame).results
                     for result in results:
                         totalscore += result
