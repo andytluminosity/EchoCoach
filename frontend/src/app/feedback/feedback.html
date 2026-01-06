@@ -57,8 +57,9 @@
     <div class="divider"></div>
     <div class="flex gap-12 self-center">
         <app-vjs-player
-        *ngIf="recordingSrc"
-        [options]="{
+            *ngIf="recordingSrc"
+            class="w-full h-full"
+            [options]="{
             autoplay: true,
             controls: true,
             fluid: true,
