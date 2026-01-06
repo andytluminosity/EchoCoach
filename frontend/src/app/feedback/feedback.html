@@ -55,10 +55,10 @@
         </div>
     </div>
     <div class="divider"></div>
-    <div class="flex gap-12 self-center">
+    <div class="flex gap-12 self-center w-full h-full">
         <app-vjs-player
             *ngIf="recordingSrc"
-            class="w-full h-full"
+            class="w-1/2 h-full"
             [options]="{
             autoplay: true,
             controls: true,
@@ -67,7 +67,7 @@
             sources: [{ src: recordingSrc, type: 'video/webm' }]
         }"
         ></app-vjs-player>
-        <p class="text-xl text-center">{{ transcribedText }}</p>
+        <p class="text-xl text-center w-1/2">{{ transcribedText }}</p>
     </div>
     <div class="stats shadow">
         <div class="stat">
