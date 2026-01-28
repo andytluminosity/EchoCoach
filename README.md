@@ -6,19 +6,19 @@ Ever wanted to practice your public speaking skills, but got tired of practicing
 
 ## Features
 
-# Record Yourself
+### Record Yourself
 
 Record yourself doing a mock interview, presenting a big speech, or just talking to the camera, using a responsive and intuitive video recorder
 
 <img width="1458" height="675" alt="image" src="https://github.com/user-attachments/assets/3110f942-2ff1-4b55-88aa-3fcf1b62ca1f" />
 
-# Save your recording
+### Save your recording
 
 After recording, you can then save your recording, including information like the recording name and type
 
 <img width="1458" height="675" alt="image" src="https://github.com/user-attachments/assets/01140ac8-be1c-4390-a997-9078886e8967" />
 
-# Get your feedback
+### Get feedback
 
 Your recording will then be sent to be analyzed by our LLMs, which are all neural networks trained on various datasets and will analyze your recording for eye contact, facial emotions, and speech emotions. This information will then be displayed on our feedback page so you can see where to improve.
 
@@ -28,7 +28,7 @@ Your recording will then be sent to be analyzed by our LLMs, which are all neura
 
 
 
-# View all your recordings and results
+### View all your recordings and results
 
 EchoCoach stores all your recording and results, so you can see any one at any time! Sort through your recording by name, date, etc., and also favourite, rename, or delete any recording
 
@@ -160,4 +160,5 @@ python manage.py runserver
 python manage.py makemigrations
 python manage.py migrate
 ```
+
 
