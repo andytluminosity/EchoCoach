@@ -1,5 +1,41 @@
 # EchoCoach
 
+## Description
+
+Ever wanted to practice your public speaking skills, but got tired of practicing in front of a mirror? EchoCoach is a web application which provides users a chance to practice their public speaking, interviewing, or presentation skills and recieve feedback from machine learning models. Uses Django for the backend, Angular + Tailwind for the frontend, and PyTorch for the LLMs!
+
+## Features
+
+# Record Yourself
+
+Record yourself doing a mock interview, presenting a big speech, or just talking to the camera, using a responsive and intuitive video recorder
+
+<img width="1458" height="675" alt="image" src="https://github.com/user-attachments/assets/3110f942-2ff1-4b55-88aa-3fcf1b62ca1f" />
+
+# Save your recording
+
+After recording, you can then save your recording, including information like the recording name and type
+
+<img width="1458" height="675" alt="image" src="https://github.com/user-attachments/assets/01140ac8-be1c-4390-a997-9078886e8967" />
+
+# Get your feedback
+
+Your recording will then be sent to be analyzed by our LLMs, which are all neural networks trained on various datasets and will analyze your recording for eye contact, facial emotions, and speech emotions. This information will then be displayed on our feedback page so you can see where to improve.
+
+<img width="1448" height="628" alt="image" src="https://github.com/user-attachments/assets/937d8f5b-9db6-43d2-9109-d2da9c91fbc4" />
+
+<img width="1451" height="720" alt="image" src="https://github.com/user-attachments/assets/fecc1bd6-b366-4c06-aca9-5ac5d67913e3" />
+
+
+
+# View all your recordings and results
+
+EchoCoach stores all your recording and results, so you can see any one at any time! Sort through your recording by name, date, etc., and also favourite, rename, or delete any recording
+
+<img width="1458" height="675" alt="image" src="https://github.com/user-attachments/assets/79c7c7c6-30f3-4051-9602-be4c8f6d5ca7" />
+
+
+
 This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 20.0.0.
 
 ## Development server
@@ -124,3 +160,4 @@ python manage.py runserver
 python manage.py makemigrations
 python manage.py migrate
 ```
+
