@@ -2,7 +2,7 @@
 
 ## Description
 
-Ever wanted to practice your public speaking skills, but got tired of practicing in front of a mirror? EchoCoach is a web application which provides users a chance to practice their public speaking, interviewing, or presentation skills and recieve feedback from machine learning models. Uses Django for the backend, Angular + Tailwind for the frontend, and PyTorch for the LLMs!
+Ever wanted to practice your public speaking skills, but got tired of practicing in front of a mirror? EchoCoach is a web application which provides users a chance to practice their public speaking, interviewing, or presentation skills and receive feedback from machine learning models. Uses Django for the backend, Angular + Tailwind for the frontend, and PyTorch for the LLMs!
 
 ## Features
 
@@ -30,7 +30,7 @@ Your recording will then be sent to be analyzed by our LLMs, which are all neura
 
 ### View all your recordings and results
 
-EchoCoach stores all your recording and results, so you can see any one at any time! Sort through your recording by name, date, etc., and also favourite, rename, or delete any recording.
+EchoCoach stores all your recordings and results, so you can see any one at any time! Sort through your recording by name, date, etc., and also favourite, rename, or delete any recording.
 
 <img width="1458" height="675" alt="image" src="https://github.com/user-attachments/assets/79c7c7c6-30f3-4051-9602-be4c8f6d5ca7" />
 
@@ -160,6 +160,7 @@ python manage.py runserver
 python manage.py makemigrations
 python manage.py migrate
 ```
+
 
 
 
