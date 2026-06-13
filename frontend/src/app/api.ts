@@ -18,6 +18,10 @@ interface AnalyzeVoiceResponse {
     };
 }
 
+interface AiFeedbackResponse {
+    feedback: string;
+}
+
 @Injectable({
     providedIn: 'root',
 })
@@ -77,6 +81,9 @@ export class Api {
         const facial_analysis_result = await firstValueFrom(
             this.http.post(this.baseurl + '/analyze-facial/', recording)
         );
+
+        console.log("Facial analysis result:", facial_analysis_result);
+
         const voice_analysis_result = await firstValueFrom(
             this.http.post<AnalyzeVoiceResponse>(
                 this.baseurl + '/analyze-voice/',
@@ -84,23 +91,38 @@ export class Api {
             )
         );
 
+        console.log("Voice analysis result:", voice_analysis_result);
+
         const transcribed_text = await firstValueFrom(
             this.http.post<string>(this.baseurl + '/speech-to-text/', recording)
         );
 
+        console.log("Transcribed text:", transcribed_text);
+        
+        const type = recording.get('type') as string;
+        const question = recording.get('question') as string;
+
+        console.log("Type:", type);
+        console.log("Question:", question);
+
         // TODO: Get API key from database
         const api_key = '';
+        let ai_feedback: AiFeedbackResponse | null = null;
 
-        // const ai_feedback = await firstValueFrom(this.http.post(this.baseurl + '/ai-feedback/', {
-        //     headers: this.httpHeaders,
-        //     body: {
-        //         "question": "Can you describe a time when you faced a difficult problem at work and how you solved it?",
-        //         "text": transcribed_text,
-        //         "emotion": voice_analysis_result.emotion,
-        //         "api_key": api_key,
-        //         "word_limit": 200
-        //     }
-        // }));
+        if (api_key) {
+            ai_feedback = await firstValueFrom(this.http.post<AiFeedbackResponse>(this.baseurl + '/ai-feedback/', {
+                headers: this.httpHeaders,
+                body: {
+                    "question": question,
+                    "text": transcribed_text,
+                    "facial_analysis": facial_analysis_result,
+                    "voice_analysis": voice_analysis_result,
+                    "video_type": type,
+                    "api_key": api_key,
+                    "word_limit": 200
+                }
+            }));
+        }
 
         console.log("Facial analysis result:", facial_analysis_result);
         console.log("Voice analysis result:", voice_analysis_result);
@@ -110,7 +132,7 @@ export class Api {
             facial_analysis_result,
             voice_analysis_result,
             transcribed_text,
-            ai_feedback: "Temporary AI Feedback"
+            ai_feedback: ai_feedback?.feedback || ''
         };
     }
 

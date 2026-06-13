@@ -118,6 +118,8 @@ export class Record {
             this.videoType == 'interview' ? this.interviewQuestion : ''
         );
 
+        console.log("Sending recording:", formData);
+
         // Send for recording analysis
         this.api.sendRecording(formData).then((response) => {
             console.log('Recording analyzed');

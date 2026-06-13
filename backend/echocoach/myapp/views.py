@@ -23,6 +23,7 @@ import tempfile
 import os
 import openai
 import uuid
+import json
 
 class UserViewSet(viewsets.ModelViewSet):
     """
@@ -92,9 +93,12 @@ def speech_to_text(request):
 
 @api_view(['POST'])
 def give_ai_feedback(request):
-    question = request.data.get('question')
-    text = request.data.get('text')
-    emotion = request.data.get('emotion')
+    transcribed_text = request.data.get('transcribed_text')
+    facial_analysis_result = json.loads(request.data.get('facial_analysis'))
+    voice_analysis_result = json.loads(request.data.get('voice_analysis'))
+    question = request.data.get('question') or ""
+    video_type = request.data.get('video_type')
+
     word_limit = request.data.get('word_limit')
 
     # Not sure how we should handle the facial expressions
@@ -104,12 +108,9 @@ def give_ai_feedback(request):
     #       and retrieve it here. This is here temporarily
     openai.api_key = request.data.get('api_key')
 
-    response = openai.chat.completions.create(
-        model = "gpt-4o-mini",
-        messages = [
-            {
-                "role": "system",
-                "content": """
+    systemMessage = ""
+    if video_type == "interview":
+        systemMessage = """
                     You are an expert career coach who helps candidates improve their  
                     interview answers.
 
@@ -118,22 +119,50 @@ def give_ai_feedback(request):
                     strengths, areas to improve, and example phrasing suggestions.
 
                     Keep your feedback concise and strictly under {word_limit} words.
-                    """
+                """
+    elif video_type == "presentation" or video_type == "speech":
+        systemMessage = """
+                    You are an expert public speaking coach who helps candidates improve their  
+                    presentation answers.
+
+                    Provide constructive, actionable, and polite feedback. Focus on 
+                    clarity, confidence, content, and professionalism. Include 
+                    strengths, areas to improve, and example phrasing suggestions.
+
+                    Keep your feedback concise and strictly under {word_limit} words.
+                """
+    else:
+        # video_type is other
+        systemMessage = """
+                    You are an expert coach who helps candidates improve their  
+                    speaking skills.
+
+                    Provide constructive, actionable, and polite feedback. Focus on 
+                    clarity, confidence, content, and professionalism. Include 
+                    strengths, areas to improve, and example phrasing suggestions.
+
+                    Keep your feedback concise and strictly under {word_limit} words.
+                """
+    
+    userMessage = ""
+    if question:
+        userMessage += f"Interview question: {question}\n\n"
+    userMessage += f"Candidate's answer: {transcribed_text}\n\n"
+    userMessage += f"Vocal emotion analysis: {voice_analysis_result}\n\n"
+    userMessage += f"Facial expression analysis: {facial_analysis_result}\n\n"
+    userMessage += "Please take the candidate's answer and vocal emotion and facial expression analysis into account when providing feedback.\n\n"
+    userMessage += f"Keep your feedback concise and strictly under {word_limit} words."
+
+    response = openai.chat.completions.create(
+        model = "gpt-4o-mini",
+        messages = [
+            {
+                "role": "system",
+                "content": systemMessage
             },
             {
                 "role": "user",
-                "content": f"""
-                Interview question: {question}
-
-                Candidate's answer: {text}
-
-                Dominant emotion in delivery: {emotion}
-
-                Please take the candidate's answer and dominant emotion 
-                into account when providing feedback.
-
-                Keep your feedback concise and strictly under {word_limit} words.
-                """
+                "content": userMessage
             }
         ],
         max_tokens = int(word_limit * 1.5),
